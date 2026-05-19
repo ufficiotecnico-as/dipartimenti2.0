@@ -33,9 +33,12 @@
         .hidden { display: none !important; }
         input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
         
-        .upload-wrapper { background: #1e293b; border: 2px dashed #475569; padding: 15px; border-radius: 8px; margin-top: 20px; max-width: 450px; }
-        .upload-wrapper label { font-size: 13px; font-weight: bold; color: #38bdf8; display: block; margin-bottom: 5px; }
-        input[type="file"] { padding: 5px; background: #334155; border: 1px solid #475569; font-size: 12px; color: white; }
+        /* Box Istruzioni per il Caricamento preventivo */
+        .drive-instructions-box { background: #1e293b; border: 2px dashed #6366f1; padding: 18px; border-radius: 8px; margin-top: 25px; max-width: 600px; }
+        .drive-instructions-box h4 { margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .drive-instructions-box ol { margin: 0; padding-left: 20px; font-size: 13px; color: #e2e8f0; line-height: 1.6; }
+        .drive-link-btn { display: inline-block; background: #2563eb; color: white; text-decoration: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; margin: 5px 0; }
+        .drive-link-btn:hover { background: #1d4ed8; }
 
         .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
@@ -80,8 +83,8 @@
         .select-status.status-consegnato { border-color: var(--success); color: var(--success); }
         .select-status.status-rifiutato { border-color: var(--danger); color: var(--danger); }
         
-        .btn-view-file { display: inline-block; background: #334155; padding: 3px 8px; border-radius: 4px; color: #38bdf8; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid #475569; }
-        .btn-view-file:hover { background: #475569; color: white; }
+        .btn-view-link { display: inline-block; background: #1e293b; padding: 4px 8px; border-radius: 4px; color: #38bdf8; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid #475569; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-view-link:hover { background: #334155; color: white; }
     </style>
 </head>
 <body>
@@ -161,9 +164,20 @@
                     <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi un altro materiale</button>
                 </div>
 
-                <div class="upload-wrapper">
-                    <label for="globalFile">📄 Nome Preventivo Riferimento (Opzionale)</label>
-                    <input type="file" id="globalFile" accept=".pdf,image/*">
+                <div class="drive-instructions-box">
+                    <h4>📂 Istruzioni per l'inserimento del Preventivo (Opzionale)</h4>
+                    <ol>
+                        <li>Clicca su questo pulsante per aprire la cartella Drive condivisa: 
+                            <br>
+                            <a href="https://drive.google.com/drive/folders/1EQZebliAZHxpIzHEVOxy4013rNf0e-0P" target="_blank" class="drive-link-btn">📁 Apri Cartella Drive Preventivi</a>
+                        </li>
+                        <li>Carica il tuo file di preventivo all'interno della cartella Drive.</li>
+                        <li>Fai clic con il tasto destro sul file caricato, seleziona <strong>Condividi -> Copia link</strong>.</li>
+                        <li>Incolla il link appena copiato nel campo qui sotto:</li>
+                    </ol>
+                    <div style="margin-top:12px;">
+                        <input type="url" id="linkPreventivoInput" placeholder="https://drive.google.com/file/d/...">
+                    </div>
                 </div>
 
                 <div style="margin-top:20px;">
@@ -244,7 +258,7 @@
 
 <script>
     // INCOLLA QUI IL NUOVO URL DELLA WEB APP GENERATO DOPO LA NUOVA DISTRIBUZIONE
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsrIpyi-ET-5LEZkI3Qim8RbejTX6f80LhA6jc7xL9AJqk5niE0bkxSDpKed_DCXSK/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKQBnTTG8FyMHj8ZI5hfOaj5JdWgMXvMJPco7MLSN4NR30h2QKyVnkYayu4Aodcgur/exec";
     let session = { email: "", dept: "", role: "" };
 
     // Gestione Login
@@ -381,7 +395,7 @@
                                         <th>Priorità</th>
                                         <th>Giustificazione</th>
                                         <th>Fornitore</th>
-                                        <th>File Riferimento</th>
+                                        <th>Link Preventivo</th>
                                         <th style="min-width:150px;">Stato Pratica</th>
                                     </tr>
                                 </thead>
@@ -404,13 +418,20 @@
                         if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
                         if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
 
+                        let cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">Nessuno</span>`;
+                        if(req.allegato && req.allegato.startsWith("http")) {
+                            cellaAllegato = `<a href="${req.allegato}" target="_blank" class="btn-view-link" title="${req.allegato}">🔗 Apri Link</a>`;
+                        } else if(req.allegato) {
+                            cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">${req.allegato}</span>`;
+                        }
+
                         tr.innerHTML = `
                             <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
                             <td style="font-weight:bold; color:white;">${req.materiale}</td>
                             <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
                             <td style="max-width:200px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
                             <td>${req.fornitore}</td>
-                            <td style="color:var(--text-muted); font-size:11px;">${req.allegato || "Nessuno"}</td>
+                            <td>${cellaAllegato}</td>
                             <td>
                                 <select class="select-status ${selectColorClass}" onchange="changeStatus(this, ${req.rigaFisica})">
                                     <option value="In attesa di preventivo" ${req.stato === "In attesa di preventivo" ? "selected" : ""}>⏳ In attesa</option>
@@ -487,10 +508,10 @@
         
         const btnInvia = document.getElementById('btnInviaRichiesta');
         const vecchioTesto = btnInvia.innerText;
-        btnInvia.innerText = "In corso... Registrazione richieste.";
+        btnInvia.innerText = "In corso... Salvataggio richieste.";
         btnInvia.disabled = true;
 
-        const fileInputGlobal = document.getElementById('globalFile').files[0];
+        const linkPreventivoValue = document.getElementById('linkPreventivoInput').value;
 
         const rows = document.querySelectorAll('#tableBody tr');
         let listaProdotti = [];
@@ -509,10 +530,7 @@
         formBody.append('dipartimento', session.dept);
         formBody.append('email', session.email);
         formBody.append('prodotti', JSON.stringify(listaProdotti));
-
-        if(fileInputGlobal) {
-            formBody.append('fileName', fileInputGlobal.name);
-        }
+        formBody.append('linkPreventivo', linkPreventivoValue);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
@@ -531,7 +549,7 @@
             }
         })
         .catch(err => {
-            alert("Errore di comunicazione con il server. Verificare la connessione e la configurazione dell'URL.");
+            alert("Errore di comunicazione con il server. Verificare la configurazione.");
             btnInvia.innerText = vecchioTesto;
             btnInvia.disabled = false;
         });
