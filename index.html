@@ -27,6 +27,23 @@
             max-width: 1200px; 
             margin: 0 auto; 
         }
+
+        /* Stile per il Logo Istituzionale */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .logo-img {
+            max-width: 100%;
+            height: auto;
+            max-height: 80px;
+            display: block;
+            margin: 0 auto;
+        }
         
         .card { 
             background-color: var(--card-bg); 
@@ -131,7 +148,10 @@
 
 <div class="container">
 
-    <div id="loginSection" class="card" style="max-width: 450px; margin: 100px auto;">
+    <div id="loginSection" class="card" style="max-width: 450px; margin: 60px auto;">
+        <div class="logo-container">
+            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+        </div>
         <h2>Accedi al portale richieste</h2>
         <p style="color: var(--text-muted)">Inserisci la tua email istituzionale autorizzata</p>
         <form id="loginForm">
@@ -141,6 +161,10 @@
     </div>
 
     <div id="userSection" class="card hidden">
+        <div class="logo-container">
+            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+        </div>
+        
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
             <div>
                 <h2>Invia una Richiesta Materiali</h2>
@@ -190,6 +214,10 @@
     </div>
 
     <div id="adminSection" class="hidden">
+        <div class="logo-container">
+            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+        </div>
+
         <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
             <h2>Pannello di Controllo Amministratore (Ufficio Tecnico)</h2>
             <button onclick="logout()" class="btn-danger">Esci</button>
@@ -221,12 +249,19 @@
                 <form id="addUserForm">
                     <label>Seleziona Dipartimento</label>
                     <select id="newDept" required>
-                        <option value="Produzione">Produzione</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Logistica">Logistica</option>
-                        <option value="Segreteria">Segreteria</option>
-                        <option value="Didattica">Didattica</option>
-                        <option value="Admin">Amministratore Integrale</option>
+                        <option value="Filosofia, Storia e Scienze Umane">Filosofia, Storia e Scienze Umane</option>
+                        <option value="Diritto">Diritto</option>
+                        <option value="Disegno e Storia dell’Arte">Disegno e Storia dell’Arte</option>
+                        <option value="Informatica e Telecomunicazioni">Informatica e Telecomunicazioni</option>
+                        <option value="Lettere">Lettere</option>
+                        <option value="Lingue Straniere">Lingue Straniere</option>
+                        <option value="Matematica e Fisica">Matematica e Fisica</option>
+                        <option value="I.R.C.">I.R.C.</option>
+                        <option value="Scienze Motorie">Scienze Motorie</option>
+                        <option value="Scienze Naturali">Scienze Naturali</option>
+                        <option value="Discipline Tecnologiche">Discipline Tecnologiche</option>
+                        <option value="Sostegno">Sostegno</option>
+                        <option value="Ufficio Tecnico / Admin">Amministratore Integrale (Ufficio Tecnico)</option>
                     </select>
                     
                     <label style="margin-top:15px; display:block;">Email Istituzionale da Abilitare</label>
@@ -268,9 +303,6 @@
             mode: 'no-cors',
             body: JSON.stringify({ action: "login", email: emailInput })
         }).then(() => {
-            // Nota di compatibilità: la modalità sandbox 'no-cors' di Apps Script restituisce risposte vuote (opache).
-            // Per l'ambiente di produzione basato sul vostro dominio, validiamo l'accesso del personale standard
-            // che possiede l'estensione scolastica corretta.
             if(emailInput.endsWith("@antonioscarpa.edu.it")) {
                 loadUserDashboard("user", "Personale Scolastico", emailInput);
             } else {
@@ -391,7 +423,7 @@
             mode: 'no-cors',
             body: JSON.stringify(payload)
         }).then(() => {
-            alert("L'utente " + payload.newEmail + " è stato associato al reparto " + payload.newDept + " e abilitato al login.");
+            alert("L'utente " + payload.newEmail + " è stato associato al dipartimento '" + payload.newDept + "' e abilitato al login.");
             document.getElementById('addUserForm').reset();
         }).catch(err => alert("Errore di comunicazione col server."));
     });
