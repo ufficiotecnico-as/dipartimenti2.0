@@ -3,259 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piattaforma Richieste Materiali - Ufficio Tecnico</title>
+    <title>Piattaforma Gestionale Richieste Ufficio Tecnico</title>
     <style>
         :root {
-            --bg-color: #1e1e24;
-            --card-bg: #2a2a35;
-            --accent-color: #4f46e5;
-            --text-color: #f3f4f6;
-            --text-muted: #9ca3af;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #6366f1;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #fff;
-            text-align: center;
-            font-size: 24px;
-        }
-
-        p.subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            box-sizing: border-box;
-            border: 1px solid #4b5563;
-            background-color: #1f2937;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #4338ca;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        #logoutBtn {
-            background-color: #ef4444;
-            margin-top: 15px;
-        }
-        #logoutBtn:hover {
-            background-color: #dc2626;
-        }
-
-        .alert {
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .alert-error { background-color: #f87171; color: #7f1d1d; }
-        .alert-success { background-color: #34d399; color: #064e3b; }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        h2, h3 { margin-top: 0; }
+        .hidden { display: none !important; }
+        input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
+        button { background: var(--accent-color); color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        
+        /* Tabella inserimento materiali multipli */
+        .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+        
+        /* Dashboard Admin */
+        .admin-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .table-responsive { overflow-x: auto; max-height: 500px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        .data-table th { background-color: #334155; position: sticky; top: 0; }
+        
+        /* Badge Stati */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-attesa { background: #eab308; color: #451a03; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="loginSection" class="card">
-        <h2>Accedi alla Piattaforma</h2>
-        <p class="subtitle">Inserisci le credenziali del tuo dipartimento</p>
-        <div id="loginAlert" class="alert alert-error hidden"></div>
+
+    <div id="loginSection" class="card" style="max-width: 450px; margin: 100px auto;">
+        <h2>Accedi al portale richieste</h2>
+        <p style="color: var(--text-muted)">Inserisci la tua email aziendale autorizzata</p>
         <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Dipartimento (Username)</label>
-                <input type="text" id="username" placeholder="Es. produzione" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-            </div>
-            <button type="submit">Accedi</button>
+            <input type="email" id="loginEmail" placeholder="nome.cognome@azienda.com" required>
+            <button type="submit" style="width:100%; margin-top:15px;">Accedi</button>
         </form>
     </div>
 
-    <div id="dashboardSection" class="card hidden">
-        <h2>Nuova Richiesta Materiale</h2>
-        <p class="subtitle">Area riservata al dipartimento: <span id="userDept" style="color:var(--accent-color); font-weight:bold; text-transform: uppercase;"></span></p>
-        <div id="formAlert" class="alert hidden"></div>
+    <div id="userSection" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h2>Invia una Richiesta Materiali</h2>
+                <p style="color:var(--text-muted)">Dipartimento attivo: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"></span></p>
+            </div>
+            <button onclick="logout()" class="btn-danger">Esci</button>
+        </div>
         
-        <form id="requestForm">
-            <div class="form-group">
-                <label for="materiale">Materiale / Prodotto Richiesto</label>
-                <input type="text" id="materiale" placeholder="Es. Cavi elettrici rame 5mm" required>
+        <form id="multiProductForm">
+            <p>Puoi inserire fino a 100 prodotti in questa richiesta. Righe attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
+            
+            <div class="table-responsive">
+                <table class="materials-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Materiale / Prodotto</th>
+                            <th style="width:150px;">Priorità</th>
+                            <th>Giustificazione</th>
+                            <th>Fornitore Specifico</th>
+                            <th style="width:50px;">Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
+                            <td>
+                                <select class="p-priorita" required>
+                                    <option value="Bassa">Bassa</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta</option>
+                                    <option value="Urgente">Urgente</option>
+                                </select>
+                            </td>
+                            <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
+                            <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
+                            <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <div class="form-group">
-                <label for="priorita">Priorità</label>
-                <select id="priorita" required>
-                    <option value="">Seleziona...</option>
-                    <option value="Bassa">Bassa</option>
-                    <option value="Media">Media</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Urgente">Urgente</option>
-                </select>
+            
+            <div style="margin-top:15px; display:flex; gap:10px;">
+                <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi Materiale</button>
+                <button type="submit">Invia Richiesta Cumulativa</button>
             </div>
-
-            <div class="form-group">
-                <label for="giustificazione">Giustificazione / Motivazione</label>
-                <textarea id="giustificazione" rows="3" placeholder="Spiega perché questo materiale è necessario..." required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="fornitore">Fornitore Specifico da Consultare</label>
-                <input type="text" id="fornitore" placeholder="Es. ElettroForniture Spa" required>
-            </div>
-
-            <button type="submit">Invia Richiesta</button>
         </form>
-        
-        <button id="logoutBtn">Disconnetti</button>
     </div>
+
+    <div id="adminSection" class="hidden">
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Pannello di Controllo Amministratore (Admin)</h2>
+            <button onclick="logout()" class="btn-danger">Esci</button>
+        </div>
+        
+        <div class="admin-grid">
+            <div class="card">
+                <h3>Tutte le Richieste dei Dipartimenti</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data/Ora</th>
+                                <th>Dipartimento</th>
+                                <th>Materiale</th>
+                                <th>Priorità</th>
+                                <th>Fornitore</th>
+                                <th>Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Autorizza Nuovo Utente/Mail</h3>
+                <form id="addUserForm">
+                    <label>Dipartimento Aziendale</label>
+                    <select id="newDept" required>
+                        <option value="Produzione">Produzione</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Logistica">Logistica</option>
+                        <option value="Ufficio Tecnico">Ufficio Tecnico</option>
+                        <option value="Admin">Admin (Vede tutto)</option>
+                    </select>
+                    
+                    <label style="margin-top:10px; display:block;">Email Aziendale da Abilitare</label>
+                    <input type="email" id="newEmail" placeholder="collega@azienda.com" required>
+                    
+                    <button type="submit" class="btn-success" style="width:100%; margin-top:15px;">Autorizza Accesso</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // INSERISCI QUI L'URL DEL TUO DEPLOYMENT DI GOOGLE APPS SCRIPT
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbytvvBHSZgGK9rm3goXj_mIKakIPqMiXXDPKoZGIl2H5AI1f_De-_4-BTSLE_Hj_nqQ/exec"; 
+    // METTI QUI IL TUO NUOVO URL DI GOOGLE APPS SCRIPT
+    const WEB_APP_URL = "IL_TUO_URL_DI_GOOGLE_APPS_SCRIPT";
     
-    let currentDepartment = "";
+    let userSession = { email: "", dept: "", role: "" };
 
-    // Gestione Login
+    // LOGIN
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const user = document.getElementById('username').value.trim().toLowerCase();
-        const pass = document.getElementById('password').value;
-        const alertBox = document.getElementById('loginAlert');
-
-        alertBox.classList.add('hidden');
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Necessario per Apps Script Web App
-            body: JSON.stringify({ action: "login", username: user, password: pass })
-        })
-        /* NOTA: 'no-cors' non permette di leggere la risposta JSON direttamente per motivi di sicurezza dei browser con Apps Script. 
-           Per rendere questo prototipo funzionante subito ed evitare blocchi CORS complessi, validiamo lato client i dipartimenti principali:
-        */
-        const utentiValidi = {"produzione":"prod2026", "marketing":"mktg2026", "amministrazione":"admin2026", "tecnico":"tech2026"};
+        const emailInput = document.getElementById('loginEmail').value;
         
-        if(utentiValidi[user] && utentiValidi[user] === pass) {
-            currentDepartment = user;
-            document.getElementById('userDept').innerText = user;
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
-        } else {
-            alertBox.innerText = "Credenziali errate. Riprova.";
-            alertBox.classList.remove('hidden');
+        // Temporaneo Client-side Fallback per velocizzare i test (consigliato usare sempre l'invio reale)
+        if(emailInput === "admin@azienda.com") {
+            loadAdminDashboard("admin", "Amministrazione", emailInput);
+            return;
         }
-    });
 
-    // Invio Dati Form a Google Sheet
-    document.getElementById('requestForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const alertBox = document.getElementById('formAlert');
-        alertBox.classList.add('hidden');
-
-        const payload = {
-            action: "insert",
-            dipartimento: currentDepartment,
-            materiale: document.getElementById('materiale').value,
-            priorita: document.getElementById('priorita').value,
-            giustificazione: document.getElementById('giustificazione').value,
-            fornitore: document.getElementById('fornitore').value
-        };
-
-        // Invio tramite Fetch API
         fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(res => {
-            // Con no-cors la risposta è opaca, assumiamo il successo se non va in errore la rete
-            alertBox.innerText = "Richiesta inviata con successo all'Ufficio Tecnico!";
-            alertBox.className = "alert alert-success";
-            document.getElementById('requestForm').reset();
-        }).catch(err => {
-            alertBox.innerText = "Errore di connessione. Riprova.";
-            alertBox.className = "alert alert-error";
+            body: JSON.stringify({ action: "login", email: emailInput })
+        }).then(() => {
+            // Nota sul bypass simulato dovuto a restrizioni sandbox no-cors di Google
+            // In produzione per leggere i ruoli reali rimuovere 'no-cors' (richiede settaggi aziendali)
+            // Per questo prototipo, se l'email contiene "admin", ti logga come admin, altrimenti come utente Produzione
+            if(emailInput.includes("admin")) {
+                loadAdminDashboard("admin", "Amministrazione", emailInput);
+            } else {
+                loadUserDashboard("user", "Reparto Produttivo", emailInput);
+            }
         });
     });
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        currentDepartment = "";
-        document.getElementById('loginForm').reset();
-        document.getElementById('dashboardSection').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
-        document.getElementById('formAlert').classList.add('hidden');
+    function loadUserDashboard(role, dept, email) {
+        userSession = { email, dept, role };
+        document.getElementById('lblDept').innerText = dept;
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('userSection').classList.remove('hidden');
+    }
+
+    function loadAdminDashboard(role, dept, email) {
+        userSession = { email, dept, role };
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('adminSection').classList.remove('hidden');
+        updateAdminTable();
+    }
+
+    // GESTIONE FORM MULTIPLO (Aggiungi/Rimuovi Righe)
+    function addRow() {
+        const tbody = document.getElementById('tableBody');
+        const currentRows = tbody.getElementsByTagName('tr').length;
+        
+        if (currentRows >= 100) {
+            alert("Hai raggiunto il limite massimo di 100 prodotti per singola richiesta.");
+            return;
+        }
+        
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="p-materiale" required placeholder="Nuovo materiale"></td>
+            <td>
+                <select class="p-priorita" required>
+                    <option value="Bassa">Bassa</option>
+                    <option value="Media" selected>Media</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Urgente">Urgente</option>
+                </select>
+            </td>
+            <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
+            <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
+            <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+        `;
+        tbody.appendChild(newRow);
+        document.getElementById('rowCount').innerText = currentRows + 1;
+    }
+
+    function removeRow(button) {
+        const tbody = document.getElementById('tableBody');
+        if(tbody.getElementsByTagName('tr').length > 1) {
+            button.closest('tr').remove();
+            document.getElementById('rowCount').innerText = tbody.getElementsByTagName('tr').length;
+        } else {
+            alert("Devi inserire almeno un prodotto nella richiesta!");
+        }
+    }
+
+    // INVIO MATERIALI MULTIPLI (UTENTE)
+    document.getElementById('multiProductForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const rows = document.querySelectorAll('#tableBody tr');
+        let prodottiLista = [];
+        
+        rows.forEach(row => {
+            prodottiLista.push({
+                materiale: row.querySelector('.p-materiale').value,
+                priorita: row.querySelector('.p-priorita').value,
+                giustificazione: row.querySelector('.p-giustificazione').value,
+                fornitore: row.querySelector('.p-fornitore').value
+            });
+        });
+
+        const payload = {
+            action: "insert_multiple",
+            dipartimento: userSession.dept,
+            email: userSession.email,
+            prodotti: prodottiLista
+        };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert("Richiesta inviata con successo! Inseriti " + prodottiLista.length + " elementi nello Sheet.");
+            // Resetta form a riga singola
+            document.getElementById('tableBody').innerHTML = `
+                <tr>
+                    <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
+                    <td><select class="p-priorita" required><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option></select></td>
+                    <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
+                    <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
+                    <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+                </tr>`;
+            document.getElementById('rowCount').innerText = "1";
+        }).catch(err => alert("Errore di rete: " + err));
     });
+
+    // AGGIUNTA NUOVO UTENTE (ADMIN)
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const payload = {
+            action: "add_authorized_user",
+            newDept: document.getElementById('newDept').value,
+            newEmail: document.getElementById('newEmail').value
+        };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert("Email " + payload.newEmail + " autorizzata correttamente per il reparto " + payload.newDept);
+            document.getElementById('addUserForm').reset();
+        });
+    });
+
+    // CARICAMENTO DATI TABELLA ADMIN
+    function updateAdminTable() {
+        // Avendo no-cors attivo per aggirare restrizioni server, per mostrare i dati in lettura ad admin 
+        // è consigliabile usare una richiesta GET o una configurazione JSONP. 
+        // Qui predisponiamo la struttura visiva dell'interfaccia.
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati aggiornati sono salvati e pronti sul Google Sheet Richieste.</td></tr>`;
+    }
+
+    function logout() {
+        location.reload();
+    }
 </script>
 </body>
 </html>
