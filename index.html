@@ -17,7 +17,7 @@
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Box Logo Vettoriale Integrato (Funziona sempre, addio immagini rotte) */
+        /* Box Logo Vettoriale Integrato */
         .logo-container { 
             text-align: center; 
             margin-bottom: 25px; 
@@ -63,14 +63,14 @@
 
     <div id="loginSection" class="card" style="max-width: 450px; margin: 40px auto;">
         <h2>Accedi al portale richieste</h2>
-        <p style="color: var(--text-muted)">Inserisci la tua email istituzionale</p>
+        <p style="color: var(--text-muted)">Inserisci credenziali personali o di reparto</p>
         <form id="loginForm">
             <label>Email Istituzionale</label>
-            <input type="email" id="loginEmail" placeholder="ufficiotecnico@antonioscarpa.edu.it" required>
+            <input type="email" id="loginEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
             
-            <div id="passwordWrapper" class="hidden" style="margin-top:15px;">
-                <label>Password Amministratore</label>
-                <input type="password" id="loginPassword" placeholder="••••••••">
+            <div style="margin-top:15px;">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required>
             </div>
             
             <button type="submit" style="width:100%; margin-top:20px;">Accedi</button>
@@ -166,9 +166,13 @@
                         <option value="Sostegno">Sostegno</option>
                     </select>
                     
-                    <label style="margin-top:15px; display:block;">Email Istituzionale da Abilitare</label>
+                    <label style="margin-top:15px; display:block;">Email Istituzionale</label>
                     <input type="email" id="newEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
-                    <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Autorizza Accesso</button>
+                    
+                    <label style="margin-top:15px; display:block;">Assegna Password Iniziale</label>
+                    <input type="text" id="newPassword" placeholder="Es. PasswordDocente2026" required>
+                    
+                    <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Autorizza e Salva Utente</button>
                 </form>
             </div>
         </div>
@@ -176,30 +180,16 @@
 </div>
 
 <script>
-    // URL Web App di Google Apps Script collegata
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw5PNobrzcqbNGhEeONldiKE3fzdo9_30W57PSuA_A8e_41HxUTr-tUcxHJhwv3z-QA/exec"
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
+    
     let session = { email: "", dept: "", role: "" };
 
-    // Mostra la password se l'email è un admin
-    document.getElementById('loginEmail').addEventListener('input', function(e) {
-        const val = e.target.value.trim().toLowerCase();
-        const admins = ["ufficiotecnico@antonioscarpa.edu.it", "mariacristina.taddeo@antonioscarpa.edu.it"];
-        if(admins.includes(val)) {
-            document.getElementById('passwordWrapper').classList.remove('hidden');
-            document.getElementById('loginPassword').setAttribute('required', 'true');
-        } else {
-            document.getElementById('passwordWrapper').classList.add('hidden');
-            document.getElementById('loginPassword').removeAttribute('required');
-        }
-    });
-
-    // Gestione Login con bypass CORS forzato (Form URL Encoded)
+    // Gestione Login URL Encoded (Bypass CORS totale)
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
 
-        // Impacchettamento dati in vecchio stile per saltare i blocchi del browser
         const formBody = new URLSearchParams();
         formBody.append('action', 'login');
         formBody.append('email', email);
@@ -227,7 +217,7 @@
             }
         })
         .catch(err => {
-            alert("Errore critico di comunicazione con il server Google Script. Controlla di aver fatto la procedura di 'Nuova Versione' su Apps Script.");
+            alert("Errore di connessione. Verifica di aver aggiornato correttamente il codice della Nuova Versione su Google Script.");
         });
     });
 
@@ -248,6 +238,7 @@
         document.getElementById('rowCount').innerText = currentRows + 1;
     }
 
+    // Rimozione riga tabella prodotti
     function removeRow(button) {
         const tbody = document.getElementById('tableBody');
         if(tbody.getElementsByTagName('tr').length > 1) {
@@ -256,7 +247,7 @@
         }
     }
 
-    // Invio form richieste con bypass CORS
+    // Invio form richieste materiali
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -287,7 +278,7 @@
         });
     });
 
-    // Autorizzazione utente (Admin) con bypass CORS
+    // Registrazione nuovo utente completo di Password
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -295,13 +286,14 @@
         formBody.append('action', 'add_authorized_user');
         formBody.append('newDept', document.getElementById('newDept').value);
         formBody.append('newEmail', document.getElementById('newEmail').value);
+        formBody.append('newPassword', document.getElementById('newPassword').value);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             body: formBody
         }).then(() => {
-            alert("Nuovo docente abilitato con successo!");
+            alert("Nuovo docente registrato con successo nel database delle autorizzazioni!");
             document.getElementById('addUserForm').reset();
         });
     });
