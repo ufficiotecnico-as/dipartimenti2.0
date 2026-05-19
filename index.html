@@ -13,11 +13,11 @@
             --text-muted: #94a3b8;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
         }
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
         
-        /* Box Logo Vettoriale Integrato */
         .logo-container { 
             text-align: center; 
             margin-bottom: 25px; 
@@ -38,12 +38,21 @@
         .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
         .btn-danger { background: var(--danger); }
         .btn-success { background: var(--success); }
-        .admin-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
-        .table-responsive { overflow-x: auto; max-height: 500px; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        
+        .admin-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; }
+        @media (max-width: 992px) { .admin-grid { grid-template-columns: 1fr; } }
+        
+        .table-responsive { overflow-x: auto; max-height: 600px; background: #1e293b; border-radius: 8px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0; }
         .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
-        .data-table th { background-color: #334155; position: sticky; top: 0; }
+        .data-table th { background-color: #334155; position: sticky; top: 0; color: white; font-weight: 600; }
+        .data-table tr:hover { background-color: rgba(255,255,255,0.03); }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .badge-alta { background-color: var(--warning); color: #000; }
+        .badge-urgente { background-color: var(--danger); color: #fff; }
+        .badge-media { background-color: var(--accent-color); color: #fff; }
+        .badge-bassa { background-color: var(--text-muted); color: #000; }
     </style>
 </head>
 <body>
@@ -126,29 +135,39 @@
 
     <div id="adminSection" class="hidden">
         <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>Pannello di Controllo Amministratore (Ufficio Tecnico)</h2>
-            <button onclick="logout()" class="btn-danger">Esci</button>
+            <h2>Pannello Controllo Amministratore (Ufficio Tecnico)</h2>
+            <div style="display:flex; gap:10px;">
+                <button onclick="loadAdminRequests()" class="btn-success" style="background:#0284c7;">🔄 Aggiorna Elenco</button>
+                <button onclick="logout()" class="btn-danger">Esci</button>
+            </div>
         </div>
         
         <div class="admin-grid">
             <div class="card">
                 <h3>Monitoraggio Richieste dei Dipartimenti</h3>
+                <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:15px;">Tutte le richieste estratte in tempo reale dal Google Sheet</p>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Stato Sistema</th>
+                                <th>Dipartimento</th>
+                                <th>Richiedente</th>
+                                <th>Materiale richiesto</th>
+                                <th>Priorità</th>
+                                <th>Giustificazione / Note</th>
+                                <th>Fornitore ind.</th>
+                                <th>Stato</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr><td style="color:var(--text-muted)">I dati vengono registrati in tempo reale nel Google Sheet "DIPARTIMENTI 2.0".</td></tr>
+                        <tbody id="adminTableBody">
+                            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Caricamento richieste in corso...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             
-            <div class="card">
-                <h3>Autorizza Nuovo Utente / Mail</h3>
+            <div class="card" style="height: fit-content;">
+                <h3>Abilita Docente / Reparto</h3>
                 <form id="addUserForm">
                     <label>Seleziona Dipartimento</label>
                     <select id="newDept" required>
@@ -169,10 +188,10 @@
                     <label style="margin-top:15px; display:block;">Email Istituzionale</label>
                     <input type="email" id="newEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
                     
-                    <label style="margin-top:15px; display:block;">Assegna Password Iniziale</label>
-                    <input type="text" id="newPassword" placeholder="Es. PasswordDocente2026" required>
+                    <label style="margin-top:15px; display:block;">Assegna Password</label>
+                    <input type="text" id="newPassword" placeholder="Password temporanea" required>
                     
-                    <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Autorizza e Salva Utente</button>
+                    <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Salva in Anagrafica</button>
                 </form>
             </div>
         </div>
@@ -180,11 +199,10 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxiPPpA-8SvSUkusSEVWPi1EGNQlPhrLTgYjz44UTCMsi-b1SrD7u6l7itrqa2ozi0R/exec";
-    
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     let session = { email: "", dept: "", role: "" };
 
-    // Gestione Login URL Encoded (Bypass CORS totale)
+    // Gestione Login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -208,6 +226,7 @@
                 
                 if(data.role === "admin") {
                     document.getElementById('adminSection').classList.remove('hidden');
+                    loadAdminRequests(); // Avvia il caricamento automatico dei dati
                 } else {
                     document.getElementById('lblDept').innerText = data.dept;
                     document.getElementById('userSection').classList.remove('hidden');
@@ -217,9 +236,57 @@
             }
         })
         .catch(err => {
-            alert("Errore di connessione. Verifica di aver aggiornato correttamente il codice della Nuova Versione su Google Script.");
+            alert("Errore di connessione server.");
         });
     });
+
+    // NUOVO: Funzione Admin per estrarre e mostrare le richieste
+    function loadAdminRequests() {
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Aggiornamento dati dal server Google...</td></tr>`;
+
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'get_requests');
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === "success" && res.data.length > 0) {
+                tbody.innerHTML = ""; // Svuota la riga di caricamento
+                
+                // Genera le righe della tabella al contrario per vedere le più recenti in alto
+                res.data.reverse().forEach(req => {
+                    const tr = document.createElement('tr');
+                    
+                    // Definisce la classe css corretta per il badge priorità
+                    let badgeClass = "badge-media";
+                    if(req.priorita.toLowerCase() === 'alta') badgeClass = "badge-alta";
+                    if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
+                    if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600; color:#38bdf8;">${req.dipartimento}</td>
+                        <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
+                        <td style="font-weight:bold; color:white;">${req.materiale}</td>
+                        <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
+                        <td style="max-width:250px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
+                        <td>${req.fornitore}</td>
+                        <td><strong style="color:var(--success); font-size:12px;">● ${req.stato}</strong></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente nel registro.</td></tr>`;
+            }
+        })
+        .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:20px;">Errore nel recupero dati. Ricontrolla il deployment dello script.</td></tr>`;
+        });
+    }
 
     function addRow() {
         const tbody = document.getElementById('tableBody');
@@ -238,7 +305,6 @@
         document.getElementById('rowCount').innerText = currentRows + 1;
     }
 
-    // Rimozione riga tabella prodotti
     function removeRow(button) {
         const tbody = document.getElementById('tableBody');
         if(tbody.getElementsByTagName('tr').length > 1) {
@@ -247,7 +313,7 @@
         }
     }
 
-    // Invio form richieste materiali
+    // Invio form richieste
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -278,7 +344,7 @@
         });
     });
 
-    // Registrazione nuovo utente completo di Password
+    // Registrazione nuovo utente
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -293,7 +359,7 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             body: formBody
         }).then(() => {
-            alert("Nuovo docente registrato con successo nel database delle autorizzazioni!");
+            alert("Nuovo docente registrato con successo!");
             document.getElementById('addUserForm').reset();
         });
     });
