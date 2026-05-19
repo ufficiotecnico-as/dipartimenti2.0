@@ -162,8 +162,7 @@
                 </div>
 
                 <div class="upload-wrapper">
-                    <label for="globalFile">📄 Allega Preventivo Unico (Opzionale)</label>
-                    <p style="color:var(--text-muted); font-size:11px; margin-top:0; margin-bottom:8px;">Il file caricato sarà associato automaticamente a tutti i materiali elencati sopra.</p>
+                    <label for="globalFile">📄 Nome Preventivo Riferimento (Opzionale)</label>
                     <input type="file" id="globalFile" accept=".pdf,image/*">
                 </div>
 
@@ -244,7 +243,8 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
+    // INCOLLA QUI IL NUOVO URL DELLA WEB APP GENERATO DOPO LA NUOVA DISTRIBUZIONE
+    const WEB_APP_URL = "INCOLLA_QUI_IL_NUOVO_URL_DELLA_WEB_APP";
     let session = { email: "", dept: "", role: "" };
 
     // Gestione Login
@@ -282,7 +282,7 @@
             }
         })
         .catch(err => {
-            alert("Errore di connessione server durante il login.");
+            alert("Errore di connessione server durante il login. Verificare che l'URL della Web App sia corretto.");
         });
     });
 
@@ -381,7 +381,7 @@
                                         <th>Priorità</th>
                                         <th>Giustificazione</th>
                                         <th>Fornitore</th>
-                                        <th>Preventivo</th>
+                                        <th>File Riferimento</th>
                                         <th style="min-width:150px;">Stato Pratica</th>
                                     </tr>
                                 </thead>
@@ -404,18 +404,13 @@
                         if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
                         if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
 
-                        let cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">Nessuno</span>`;
-                        if(req.allegato) {
-                            cellaAllegato = `<a href="${req.allegato}" target="_blank" class="btn-view-file">📄 Vedi File</a>`;
-                        }
-
                         tr.innerHTML = `
                             <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
                             <td style="font-weight:bold; color:white;">${req.materiale}</td>
                             <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
                             <td style="max-width:200px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
                             <td>${req.fornitore}</td>
-                            <td>${cellaAllegato}</td>
+                            <td style="color:var(--text-muted); font-size:11px;">${req.allegato || "Nessuno"}</td>
                             <td>
                                 <select class="select-status ${selectColorClass}" onchange="changeStatus(this, ${req.rigaFisica})">
                                     <option value="In attesa di preventivo" ${req.stato === "In attesa di preventivo" ? "selected" : ""}>⏳ In attesa</option>
@@ -486,34 +481,16 @@
         }
     }
 
-    // Convertitore File in Base64
-    const fileToBufferObj = (file) => {
-        return new Promise((resolve) => {
-            if (!file) return resolve(null);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result.split(',')[1];
-                resolve({
-                    fileName: file.name,
-                    fileType: file.type,
-                    fileData: base64String
-                });
-            };
-            reader.readAsDataURL(file);
-        });
-    };
-
     // Invio Richiesta Multipla
-    document.getElementById('multiProductForm').addEventListener('submit', async function(e) {
+    document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const btnInvia = document.getElementById('btnInviaRichiesta');
         const vecchioTesto = btnInvia.innerText;
-        btnInvia.innerText = "In corso... Caricamento allegati ed elaborazione fogli.";
+        btnInvia.innerText = "In corso... Registrazione richieste.";
         btnInvia.disabled = true;
 
         const fileInputGlobal = document.getElementById('globalFile').files[0];
-        const fileDataObj = await fileToBufferObj(fileInputGlobal);
 
         const rows = document.querySelectorAll('#tableBody tr');
         let listaProdotti = [];
@@ -533,10 +510,8 @@
         formBody.append('email', session.email);
         formBody.append('prodotti', JSON.stringify(listaProdotti));
 
-        if(fileDataObj) {
-            formBody.append('fileName', fileDataObj.fileName);
-            formBody.append('fileType', fileDataObj.fileType);
-            formBody.append('fileData', fileDataObj.fileData);
+        if(fileInputGlobal) {
+            formBody.append('fileName', fileInputGlobal.name);
         }
 
         fetch(WEB_APP_URL, {
@@ -547,17 +522,18 @@
         .then(res => res.json())
         .then(data => {
             if(data.status === "success") {
-                alert("Richiesta registrata e file inserito correttamente!");
+                alert("Richiesta inviata e registrata con successo!");
                 location.reload();
             } else {
-                alert("Errore restituito dal server: " + data.message);
+                alert("Errore dal server: " + data.message);
                 btnInvia.innerText = vecchioTesto;
                 btnInvia.disabled = false;
             }
         })
         .catch(err => {
-            alert("Richiesta salvata! Nota: Se il file allegato supera i 10MB o l'account ha restrizioni attive su Drive, l'allegato potrebbe essere omesso.");
-            location.reload();
+            alert("Errore di comunicazione con il server. Verificare la connessione e la configurazione dell'URL.");
+            btnInvia.innerText = vecchioTesto;
+            btnInvia.disabled = false;
         });
     });
 
