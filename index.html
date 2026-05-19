@@ -32,10 +32,12 @@
         h2, h3 { margin-top: 0; }
         .hidden { display: none !important; }
         input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
-        input[type="file"] { padding: 5px; background: transparent; border: none; font-size: 11px; color: var(--text-muted); }
-        button { background: var(--accent-color); color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        button:hover { opacity: 0.9; }
         
+        /* Box caricamento file unico */
+        .upload-wrapper { background: #1e293b; border: 2px dashed #475569; padding: 15px; border-radius: 8px; margin-top: 20px; max-width: 450px; }
+        .upload-wrapper label { font-size: 13px; font-weight: bold; color: #38bdf8; display: block; margin-bottom: 5px; }
+        input[type="file"] { padding: 5px; background: #334155; border: 1px solid #475569; font-size: 12px; color: white; }
+
         .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
         .btn-danger { background: var(--danger); }
@@ -129,10 +131,9 @@
                         <thead>
                             <tr>
                                 <th>Materiale / Prodotto</th>
-                                <th style="width:130px;">Priorità</th>
+                                <th style="width:150px;">Priorità</th>
                                 <th>Giustificazione</th>
-                                <th>Fornitore</th>
-                                <th style="width:180px;">Carica Preventivo (Opzionale)</th>
+                                <th>Fornitore Referente</th>
                                 <th style="width:50px;">Azione</th>
                             </tr>
                         </thead>
@@ -149,15 +150,24 @@
                                 </td>
                                 <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
                                 <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-                                <td><input type="file" class="p-file" accept=".pdf,image/*"></td>
                                 <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div style="margin-top:15px; display:flex; gap:10px;">
-                    <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi Materiale</button>
-                    <button type="submit" id="btnInviaRichiesta">Invia Richiesta Cumulativa</button>
+                
+                <div style="margin-top:15px;">
+                    <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi un altro materiale</button>
+                </div>
+
+                <div class="upload-wrapper">
+                    <label for="globalFile">📄 Allega Preventivo Unico (Opzionale)</label>
+                    <p style="color:var(--text-muted); font-size:11px; margin-top:0; margin-bottom:8px;">Il file caricato sarà associato automaticamente a tutti i materiali elencati sopra.</p>
+                    <input type="file" id="globalFile" accept=".pdf,image/*">
+                </div>
+
+                <div style="margin-top:20px;">
+                    <button type="submit" id="btnInviaRichiesta" style="padding:12px 30px; font-size:15px;">Invia Elenco Richiesta Completo</button>
                 </div>
             </form>
         </div>
@@ -233,7 +243,7 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyadq0SZe4Kf2VeaWPZ8wqdbZAw9Y1oeLRdI4Fs02m-P3Loq0ivl3Xcw3zGdaS3Yqvo/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyrY0CYoLmrxjNPajn6T4K1DVa5B0OHP-o7PNe69VZJ1xLZxb9KEnNZ_TVDfMhlHzB6/exec";
     let session = { email: "", dept: "", role: "" };
 
     // Gestione Login
@@ -324,7 +334,7 @@
         });
     }
 
-    // Caricamento Admin diviso per Dipartimenti + link file preventivo
+    // Caricamento Admin diviso per Dipartimenti
     function loadAdminRequests() {
         const container = document.getElementById('departmentsContainer');
         container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Divisione e impaginazione dati per Dipartimento...</div>`;
@@ -370,7 +380,7 @@
                                         <th>Priorità</th>
                                         <th>Giustificazione</th>
                                         <th>Fornitore</th>
-                                        <th>Allegato</th>
+                                        <th>Preventivo</th>
                                         <th style="min-width:150px;">Stato Pratica</th>
                                     </tr>
                                 </thead>
@@ -393,7 +403,6 @@
                         if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
                         if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
 
-                        // Gestione cella file allegato
                         let cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">Nessuno</span>`;
                         if(req.allegato) {
                             cellaAllegato = `<a href="${req.allegato}" target="_blank" class="btn-view-file">📄 Vedi File</a>`;
@@ -459,7 +468,6 @@
             <td><select class="p-priorita" required><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option></select></td>
             <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
             <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-            <td><input type="file" class="p-file" accept=".pdf,image/*"></td>
             <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
         `;
         tbody.appendChild(newRow);
@@ -474,7 +482,7 @@
         }
     }
 
-    // Helper per convertire file in Base64 (necessario per trasmetterlo a Google Script)
+    // Helper per convertire file in Base64
     const fileToBufferObj = (file) => {
         return new Promise((resolve) => {
             if (!file) return resolve(null);
@@ -491,35 +499,29 @@
         });
     };
 
-    // Invio Richiesta con conversione asincrona dei file allegati
+    // Invio Richiesta con preventivo UNICO globale
     document.getElementById('multiProductForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const btnInvia = document.getElementById('btnInviaRichiesta');
-        btnInvia.innerText = "Caricamento file e invio in corso...";
+        btnInvia.innerText = "Caricamento preventivo e invio pratiche...";
         btnInvia.disabled = true;
+
+        // Recupera ed elabora l'unico file globale inserito nel box esterno
+        const fileInputGlobal = document.getElementById('globalFile').files[0];
+        const fileDataObj = await fileToBufferObj(fileInputGlobal);
 
         const rows = document.querySelectorAll('#tableBody tr');
         let listaProdotti = [];
         
-        for (let row of rows) {
-            const fileInput = row.querySelector('.p-file').files[0];
-            const fileDataObj = await fileToBufferObj(fileInput);
-
-            let prodottoObj = {
+        rows.forEach(row => {
+            listaProdotti.push({
                 materiale: row.querySelector('.p-materiale').value,
                 priorita: row.querySelector('.p-priorita').value,
                 giustificazione: row.querySelector('.p-giustificazione').value,
                 fornitore: row.querySelector('.p-fornitore').value
-            };
-
-            if(fileDataObj) {
-                prodottoObj.fileName = fileDataObj.fileName;
-                prodottoObj.fileType = fileDataObj.fileType;
-                prodottoObj.fileData = fileDataObj.fileData;
-            }
-            listaProdotti.push(prodottoObj);
-        }
+            });
+        });
 
         const formBody = new URLSearchParams();
         formBody.append('action', 'insert_multiple');
@@ -527,16 +529,23 @@
         formBody.append('email', session.email);
         formBody.append('prodotti', JSON.stringify(listaProdotti));
 
+        // Se è stato inserito il file, aggiungiamo i parametri del preventivo globale al form di invio
+        if(fileDataObj) {
+            formBody.append('fileName', fileDataObj.fileName);
+            formBody.append('fileType', fileDataObj.fileType);
+            formBody.append('fileData', fileDataObj.fileData);
+        }
+
         fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             body: formBody
         }).then(() => {
-            alert("Richiesta registrata e file caricati su Google Drive con successo!");
+            alert("Richieste inviate! Il preventivo globale è stato correttamente registrato ed inserito nella cartella Drive.");
             location.reload();
         }).catch(() => {
-            alert("Errore durante l'invio.");
-            btnInvia.innerText = "Invia Richiesta Cumulativa";
+            alert("Errore durante l'invio della pratica.");
+            btnInvia.innerText = "Invia Elenco Richiesta Completo";
             btnInvia.disabled = false;
         });
     });
