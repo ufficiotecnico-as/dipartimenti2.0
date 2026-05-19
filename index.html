@@ -28,19 +28,20 @@
             margin: 0 auto; 
         }
 
-        /* Stile per il Logo Istituzionale */
+        /* Stile ottimizzato per il Logo Ufficiale dell'Istituto */
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
-            background: white;
+            margin-bottom: 25px;
             padding: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .logo-img {
             max-width: 100%;
             height: auto;
-            max-height: 80px;
+            max-height: 90px;
             display: block;
             margin: 0 auto;
         }
@@ -150,7 +151,7 @@
 
     <div id="loginSection" class="card" style="max-width: 450px; margin: 60px auto;">
         <div class="logo-container">
-            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
         </div>
         <h2>Accedi al portale richieste</h2>
         <p style="color: var(--text-muted)">Inserisci la tua email istituzionale autorizzata</p>
@@ -162,7 +163,7 @@
 
     <div id="userSection" class="card hidden">
         <div class="logo-container">
-            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
         </div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
@@ -215,7 +216,7 @@
 
     <div id="adminSection" class="hidden">
         <div class="logo-container">
-            <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Logo Istituto" class="logo-img">
+            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
         </div>
 
         <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
@@ -276,17 +277,17 @@
 </div>
 
 <script>
-    // INCOLLA QUI L'URL COPIATO DA GOOGLE APPS SCRIPT DOPO IL DEPLOYMENT
-    const WEB_APP_URL = "https://docs.google.com/spreadsheets/d/1tywWt2RX2npbQ35kJP4xJHalQYAxWs15JNAxAmgDusA/edit?usp=sharing";
+    // Sostituire questa stringa con l'URL generato da Google Apps Script (Nuovo Deployment -> App Web)
+    const WEB_APP_URL = "IL_TUO_URL_DI_GOOGLE_APPS_SCRIPT";
     
     let userSession = { email: "", dept: "", role: "" };
 
-    // FUNZIONE LOGICA DI LOGIN
+    // FUNZIONE DI ACCESSO
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
         
-        // Controllo immediato delle due mail Admin definite
+        // Controllo immediato delle due mail Admin istituzionali
         const adminEmails = [
             "ufficiotecnico@antonioscarpa.edu.it",
             "mariacristina.taddeo@antonioscarpa.edu.it"
@@ -297,7 +298,7 @@
             return;
         }
 
-        // Se non è admin principale, inoltra la richiesta al backend per validare la whitelist dei dipendenti
+        // Verifica via database/script per il personale dei dipartimenti
         fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -306,10 +307,10 @@
             if(emailInput.endsWith("@antonioscarpa.edu.it")) {
                 loadUserDashboard("user", "Personale Scolastico", emailInput);
             } else {
-                alert("Accesso rifiutato. Dominio email non riconosciuto o non autorizzato.");
+                alert("Accesso rifiutato. Dominio email non appartenente all'istituto.");
             }
         }).catch(err => {
-            alert("Errore di connessione con il database.");
+            alert("Errore nel collegamento al server.");
         });
     });
 
@@ -327,13 +328,13 @@
         updateAdminTable();
     }
 
-    // INTERFACCIA DINAMICA (Aggiunta righe materiali fino a 100)
+    // LOGICA TABELLA DINAMICA MATERIALI (Fino a 100 righe)
     function addRow() {
         const tbody = document.getElementById('tableBody');
         const currentRows = tbody.getElementsByTagName('tr').length;
         
         if (currentRows >= 100) {
-            alert("Attenzione: hai raggiunto il limite massimo di 100 articoli per singola richiesta.");
+            alert("Limite massimo raggiunto: non puoi inserire più di 100 prodotti per invio.");
             return;
         }
         
@@ -362,11 +363,11 @@
             button.closest('tr').remove();
             document.getElementById('rowCount').innerText = tbody.getElementsByTagName('tr').length;
         } else {
-            alert("La richiesta deve contenere almeno un articolo.");
+            alert("È obbligatorio inserire almeno un articolo.");
         }
     }
 
-    // RACCOLTA E INVIO FORMATO CUMULATIVO AL GOOGLE SHEET
+    // INVIO DATI COMBINATI AL GOOGLE SHEET
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -394,9 +395,8 @@
             mode: 'no-cors',
             body: JSON.stringify(payload)
         }).then(() => {
-            alert("Richiesta inviata! Sincronizzati " + listaProdotti.length + " prodotti nel database dell'Ufficio Tecnico.");
+            alert("Richiesta registrata! Inseriti correttamente " + listaProdotti.length + " articoli.");
             
-            // Ripristino del form allo stato iniziale a riga singola
             document.getElementById('tableBody').innerHTML = `
                 <tr>
                     <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
@@ -406,10 +406,10 @@
                     <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
                 </tr>`;
             document.getElementById('rowCount').innerText = "1";
-        }).catch(err => alert("Errore durante il salvataggio dei dati: " + err));
+        }).catch(err => alert("Errore durante il salvataggio dei dati nello Sheet."));
     });
 
-    // AZIONE ABILITAZIONE NUOVI UTENTI (SOLO GESTIONE ADMIN)
+    // ABILITAZIONE NUOVE MAIL (PANNELLO ADMIN)
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const payload = {
@@ -423,14 +423,14 @@
             mode: 'no-cors',
             body: JSON.stringify(payload)
         }).then(() => {
-            alert("L'utente " + payload.newEmail + " è stato associato al dipartimento '" + payload.newDept + "' e abilitato al login.");
+            alert("L'indirizzo " + payload.newEmail + " è stato autorizzato per il dipartimento selezionato.");
             document.getElementById('addUserForm').reset();
-        }).catch(err => alert("Errore di comunicazione col server."));
+        }).catch(err => alert("Impossibile connettersi al database utenti."));
     });
 
     function updateAdminTable() {
         const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati completi e la cronologia delle modifiche agli stati (\"In valutazione\", \"Accettato\", \"Rifiutato\") sono aggiornati in tempo reale sul foglio Google Sheet collegato.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati completi e gli stati in tempo reale sono memorizzati sul foglio Google Sheet collegato.</td></tr>`;
     }
 
     function logout() {
