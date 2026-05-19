@@ -17,7 +17,7 @@
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Box Logo con Stemma Vettoriale dell'Istituto */
+        /* Box Logo Vettoriale Integrato (Funziona sempre, addio immagini rotte) */
         .logo-container { 
             text-align: center; 
             margin-bottom: 25px; 
@@ -62,8 +62,8 @@
     </div>
 
     <div id="loginSection" class="card" style="max-width: 450px; margin: 40px auto;">
-        <h2>Accedi al portale</h2>
-        <p style="color: var(--text-muted)">Inserisci le tue credenziali istituzionali</p>
+        <h2>Accedi al portale richieste</h2>
+        <p style="color: var(--text-muted)">Inserisci la tua email istituzionale</p>
         <form id="loginForm">
             <label>Email Istituzionale</label>
             <input type="email" id="loginEmail" placeholder="ufficiotecnico@antonioscarpa.edu.it" required>
@@ -87,7 +87,7 @@
         </div>
         
         <form id="multiProductForm">
-            <p>Puoi inserire fino a 100 prodotti. Righe attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
+            <p>Righe materiali attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
             <div class="table-responsive">
                 <table class="materials-table">
                     <thead>
@@ -137,16 +137,11 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Data/Ora</th>
-                                <th>Dipartimento</th>
-                                <th>Materiale</th>
-                                <th>Priorità</th>
-                                <th>Fornitore</th>
-                                <th>Stato</th>
+                                <th>Stato Sistema</th>
                             </tr>
                         </thead>
-                        <tbody id="adminTableBody">
-                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati e la cronologia completa sono archiviati in tempo reale sul file Google Sheet collegato.</td></tr>
+                        <tbody>
+                            <tr><td style="color:var(--text-muted)">I dati vengono registrati in tempo reale nel Google Sheet "DIPARTIMENTI 2.0".</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -181,12 +176,12 @@
 </div>
 
 <script>
-    // URL Web App di Google Apps Script collegata ed impostata
-    const WEB_APP_URL = "https://docs.google.com/spreadsheets/d/1tywWt2RX2npbQ35kJP4xJHalQYAxWs15JNAxAmgDusA/edit?usp=sharing";
+    // URL Web App di Google Apps Script collegata
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     
     let session = { email: "", dept: "", role: "" };
 
-    // Mostra il campo password se viene digitata un'email amministratore
+    // Mostra la password se l'email è un admin
     document.getElementById('loginEmail').addEventListener('input', function(e) {
         const val = e.target.value.trim().toLowerCase();
         const admins = ["ufficiotecnico@antonioscarpa.edu.it", "mariacristina.taddeo@antonioscarpa.edu.it"];
@@ -199,16 +194,17 @@
         }
     });
 
-    // Gestione Login con bypass definitivo dei blocchi CORS
+    // Gestione Login con bypass CORS forzato (Form URL Encoded)
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
 
-        // Trasformazione del payload in formato URL-encoded per forzare Google ad accettare la richiesta senza blocchi CORS
-        const dataPayload = { action: "login", email: email, password: password };
+        // Impacchettamento dati in vecchio stile per saltare i blocchi del browser
         const formBody = new URLSearchParams();
-        formBody.append('contents', JSON.stringify(dataPayload));
+        formBody.append('action', 'login');
+        formBody.append('email', email);
+        formBody.append('password', password);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
@@ -232,8 +228,7 @@
             }
         })
         .catch(err => {
-            console.error(err);
-            alert("Errore di connessione. Se hai già aggiornato l'HTML su GitHub, assicurati di aver eseguito un 'Nuovo Deployment' impostando 'Chi ha accesso: Chiunque' dentro Google Apps Script.");
+            alert("Errore critico di comunicazione con il server Google Script. Controlla di aver fatto la procedura di 'Nuova Versione' su Apps Script.");
         });
     });
 
@@ -262,7 +257,7 @@
         }
     }
 
-    // Invio Form Richieste con bypass CORS
+    // Invio form richieste con bypass CORS
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -277,43 +272,37 @@
             });
         });
 
-        const dataPayload = {
-            action: "insert_multiple",
-            dipartimento: session.dept,
-            email: session.email,
-            prodotti: listaProdotti
-        };
         const formBody = new URLSearchParams();
-        formBody.append('contents', JSON.stringify(dataPayload));
+        formBody.append('action', 'insert_multiple');
+        formBody.append('dipartimento', session.dept);
+        formBody.append('email', session.email);
+        formBody.append('prodotti', JSON.stringify(listaProdotti));
 
         fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             body: formBody
         }).then(() => {
-            alert("Richiesta cumulata registrata con successo nel Google Sheet!");
+            alert("Richiesta registrata con successo nel Google Sheet!");
             location.reload();
         });
     });
 
-    // Inserimento Utenti Autorizzati (Admin) con bypass CORS
+    // Autorizzazione utente (Admin) con bypass CORS
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const dataPayload = {
-            action: "add_authorized_user",
-            newDept: document.getElementById('newDept').value,
-            newEmail: document.getElementById('newEmail').value
-        };
         const formBody = new URLSearchParams();
-        formBody.append('contents', JSON.stringify(dataPayload));
+        formBody.append('action', 'add_authorized_user');
+        formBody.append('newDept', document.getElementById('newDept').value);
+        formBody.append('newEmail', document.getElementById('newEmail').value);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             body: formBody
         }).then(() => {
-            alert("Nuovo indirizzo email abilitato con successo nella whitelist!");
+            alert("Nuovo docente abilitato con successo!");
             document.getElementById('addUserForm').reset();
         });
     });
