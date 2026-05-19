@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piattaforma Richieste Materiali - Ufficio Tecnico</title>
+    <style>
+        :root {
+            --bg-color: #1e1e24;
+            --card-bg: #2a2a35;
+            --accent-color: #4f46e5;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #4b5563;
+            background-color: #1f2937;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4338ca;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #logoutBtn {
+            background-color: #ef4444;
+            margin-top: 15px;
+        }
+        #logoutBtn:hover {
+            background-color: #dc2626;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .alert-error { background-color: #f87171; color: #7f1d1d; }
+        .alert-success { background-color: #34d399; color: #064e3b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="loginSection" class="card">
+        <h2>Accedi alla Piattaforma</h2>
+        <p class="subtitle">Inserisci le credenziali del tuo dipartimento</p>
+        <div id="loginAlert" class="alert alert-error hidden"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Dipartimento (Username)</label>
+                <input type="text" id="username" placeholder="Es. produzione" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit">Accedi</button>
+        </form>
+    </div>
+
+    <div id="dashboardSection" class="card hidden">
+        <h2>Nuova Richiesta Materiale</h2>
+        <p class="subtitle">Area riservata al dipartimento: <span id="userDept" style="color:var(--accent-color); font-weight:bold; text-transform: uppercase;"></span></p>
+        <div id="formAlert" class="alert hidden"></div>
+        
+        <form id="requestForm">
+            <div class="form-group">
+                <label for="materiale">Materiale / Prodotto Richiesto</label>
+                <input type="text" id="materiale" placeholder="Es. Cavi elettrici rame 5mm" required>
+            </div>
+
+            <div class="form-group">
+                <label for="priorita">Priorità</label>
+                <select id="priorita" required>
+                    <option value="">Seleziona...</option>
+                    <option value="Bassa">Bassa</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Urgente">Urgente</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="giustificazione">Giustificazione / Motivazione</label>
+                <textarea id="giustificazione" rows="3" placeholder="Spiega perché questo materiale è necessario..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="fornitore">Fornitore Specifico da Consultare</label>
+                <input type="text" id="fornitore" placeholder="Es. ElettroForniture Spa" required>
+            </div>
+
+            <button type="submit">Invia Richiesta</button>
+        </form>
+        
+        <button id="logoutBtn">Disconnetti</button>
+    </div>
+</div>
+
+<script>
+    // INSERISCI QUI L'URL DEL TUO DEPLOYMENT DI GOOGLE APPS SCRIPT
+    const WEB_APP_URL = "IL_TUO_URL_DI_GOOGLE_APPS_SCRIPT"; 
+    
+    let currentDepartment = "";
+
+    // Gestione Login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value.trim().toLowerCase();
+        const pass = document.getElementById('password').value;
+        const alertBox = document.getElementById('loginAlert');
+
+        alertBox.classList.add('hidden');
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Necessario per Apps Script Web App
+            body: JSON.stringify({ action: "login", username: user, password: pass })
+        })
+        /* NOTA: 'no-cors' non permette di leggere la risposta JSON direttamente per motivi di sicurezza dei browser con Apps Script. 
+           Per rendere questo prototipo funzionante subito ed evitare blocchi CORS complessi, validiamo lato client i dipartimenti principali:
+        */
+        const utentiValidi = {"produzione":"prod2026", "marketing":"mktg2026", "amministrazione":"admin2026", "tecnico":"tech2026"};
+        
+        if(utentiValidi[user] && utentiValidi[user] === pass) {
+            currentDepartment = user;
+            document.getElementById('userDept').innerText = user;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+        } else {
+            alertBox.innerText = "Credenziali errate. Riprova.";
+            alertBox.classList.remove('hidden');
+        }
+    });
+
+    // Invio Dati Form a Google Sheet
+    document.getElementById('requestForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const alertBox = document.getElementById('formAlert');
+        alertBox.classList.add('hidden');
+
+        const payload = {
+            action: "insert",
+            dipartimento: currentDepartment,
+            materiale: document.getElementById('materiale').value,
+            priorita: document.getElementById('priorita').value,
+            giustificazione: document.getElementById('giustificazione').value,
+            fornitore: document.getElementById('fornitore').value
+        };
+
+        // Invio tramite Fetch API
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(res => {
+            // Con no-cors la risposta è opaca, assumiamo il successo se non va in errore la rete
+            alertBox.innerText = "Richiesta inviata con successo all'Ufficio Tecnico!";
+            alertBox.className = "alert alert-success";
+            document.getElementById('requestForm').reset();
+        }).catch(err => {
+            alertBox.innerText = "Errore di connessione. Riprova.";
+            alertBox.className = "alert alert-error";
+        });
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        currentDepartment = "";
+        document.getElementById('loginForm').reset();
+        document.getElementById('dashboardSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('formAlert').classList.add('hidden');
+    });
+</script>
+</body>
+</html>
