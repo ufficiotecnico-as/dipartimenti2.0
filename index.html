@@ -242,10 +242,10 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyCOmhbnrsRDeiOuY5XsEcYOAo1-bhJVJKITTbsT4t_udeeUBPj2JPYdJd4Xag9qiLO/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     let session = { email: "", dept: "", role: "" };
 
-    // Gestione Login
+    // Gestione Login (Invia dati in modo compatibile)
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -280,7 +280,7 @@
             }
         })
         .catch(err => {
-            alert("Errore di connessione server.");
+            alert("Errore di connessione server durante il login.");
         });
     });
 
@@ -497,7 +497,7 @@
         });
     };
 
-    // Invio Richiesta in formato JSON Puro
+    // Invio file e dati in formato JSON Unificato e sicuro
     document.getElementById('multiProductForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -521,7 +521,6 @@
             });
         });
 
-        // Creazione dell'oggetto payload JSON unico
         const payload = {
             action: 'insert_multiple',
             dipartimento: session.dept,
@@ -551,7 +550,7 @@
             }
         })
         .catch(err => {
-            alert("Errore di rete/comunicazione con il server Google Apps Script.");
+            alert("Errore durante la trasmissione. Verifica la dimensione del file o i permessi di Drive.");
             btnInvia.innerText = vecchioTesto;
             btnInvia.disabled = false;
         });
