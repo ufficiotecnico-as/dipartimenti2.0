@@ -6,139 +6,255 @@
     <title>Piattaforma Gestionale Richieste Ufficio Tecnico</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --input-bg: #1e293b;
             --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --drive-color: #38bdf8;
         }
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
-        .container { max-width: 1500px; margin: 0 auto; }
         
-        .logo-container { 
-            text-align: center; 
-            margin-bottom: 25px; 
-            padding: 20px 15px; 
-            background-color: #ffffff; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .logo-svg { max-width: 100%; height: auto; max-height: 65px; display: block; margin: 0 auto; }
-        
-        .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        h2, h3 { margin-top: 0; }
-        .hidden { display: none !important; }
-        input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
-        
-        /* Box Istruzioni per il Caricamento preventivo */
-        .drive-instructions-box { background: #1e293b; border: 2px dashed #6366f1; padding: 18px; border-radius: 8px; margin-top: 25px; max-width: 600px; }
-        .drive-instructions-box h4 { margin: 0 0 10px 0; color: #38bdf8; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-        .drive-instructions-box ol { margin: 0; padding-left: 20px; font-size: 13px; color: #e2e8f0; line-height: 1.6; }
-        .drive-link-btn { display: inline-block; background: #2563eb; color: white; text-decoration: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; margin: 5px 0; }
-        .drive-link-btn:hover { background: #1d4ed8; }
 
-        .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
-        .btn-danger { background: var(--danger); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-        .btn-success { background: var(--success); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-        button[type="submit"], button { background: var(--accent-color); border: none; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button:disabled { background: #475569; cursor: not-allowed; }
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            margin: 0; 
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-color) 70%);
+            min-height: 100vh;
+        }
         
-        .admin-grid { display: grid; grid-template-columns: 3fr 1.2fr; gap: 20px; align-items: start; }
+        .container { max-width: 1500px; margin: 0 auto; animation: fadeInUp 0.6s ease forwards; }
+        
+        /* Banner Intestazione Nuova */
+        .header-banner {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            margin-bottom: 30px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .header-banner img {
+            max-width: 100%;
+            height: auto;
+            max-height: 85px;
+            object-fit: contain;
+        }
+        
+        .card { 
+            background-color: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); 
+            margin-bottom: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 15px 35px -5px rgba(99, 102, 241, 0.1);
+        }
+        
+        h2, h3 { margin-top: 0; font-weight: 700; letter-spacing: -0.5px; }
+        h2 { color: #ffffff; }
+        h3 { color: #e2e8f0; }
+        
+        .hidden { display: none !important; }
+        
+        label { font-size: 14px; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 6px; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--input-bg); 
+            border: 1px solid #334155; 
+            color: white; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            margin-top: 4px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: #243249;
+        }
+        
+        /* Box Istruzioni Drive */
+        .drive-instructions-box { 
+            background: rgba(56, 189, 248, 0.03); 
+            border: 2px dashed rgba(56, 189, 248, 0.3); 
+            padding: 22px; 
+            border-radius: 12px; 
+            margin-top: 25px; 
+            max-width: 650px; 
+        }
+        .drive-instructions-box h4 { margin: 0 0 12px 0; color: var(--drive-color); font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .drive-instructions-box ol { margin: 0; padding-left: 20px; font-size: 14px; color: #e2e8f0; line-height: 1.7; }
+        .drive-instructions-box li { margin-bottom: 8px; }
+        .drive-link-btn { 
+            display: inline-flex; 
+            align-items: center;
+            background: #0284c7; 
+            color: white; 
+            text-decoration: none; 
+            padding: 6px 14px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            font-size: 12px; 
+            margin: 6px 0; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+        .drive-link-btn:hover { background: #0369a1; transform: translateY(-1px); }
+
+        /* Tabelle e Liste */
+        .materials-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 15px; }
+        .materials-table th { padding: 12px; text-align: left; color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .materials-table td { padding: 12px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .materials-table tr td:first-child { border-left: 1px solid rgba(255,255,255,0.05); border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .materials-table tr td:last-child { border-right: 1px solid rgba(255,255,255,0.05); border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        
+        /* Bottoni */
+        button { 
+            background: var(--accent-color); 
+            border: none; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #334155; color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        
+        .admin-grid { display: grid; grid-template-columns: 3fr 1.2fr; gap: 25px; align-items: start; }
         @media (max-width: 1200px) { .admin-grid { grid-template-columns: 1fr; } }
         
-        .scrollable-departments-zone { max-height: 680px; overflow-y: auto; padding-right: 8px; }
+        .scrollable-departments-zone { max-height: 700px; overflow-y: auto; padding-right: 8px; }
         .scrollable-departments-zone::-webkit-scrollbar { width: 6px; }
-        .scrollable-departments-zone::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
-        .scrollable-departments-zone::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        .scrollable-departments-zone::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        .scrollable-departments-zone::-webkit-scrollbar-track { background: var(--card-bg); border-radius: 10px; }
+        .scrollable-departments-zone::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .scrollable-departments-zone::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
-        .dept-container { margin-bottom: 20px; border: 1px solid #334155; border-radius: 8px; padding: 15px; background: rgba(15, 23, 42, 0.4); }
-        .dept-title { color: #38bdf8; font-size: 15px; margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+        .dept-container { margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; background: rgba(15, 23, 42, 0.3); }
+        .dept-title { color: #38bdf8; font-size: 16px; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
         
-        .table-responsive { overflow-x: auto; background: #1e293b; border-radius: 6px; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0; }
-        .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
-        .data-table th { background-color: #334155; position: sticky; top: 0; color: white; font-weight: 600; z-index: 10; }
-        .data-table tr:hover { background-color: rgba(255,255,255,0.02); }
+        .table-responsive { overflow-x: auto; background: rgba(15, 23, 42, 0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; color: #e2e8f0; }
+        .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .data-table th { background-color: #1e293b; color: #ffffff; font-weight: 600; }
+        .data-table tr:hover { background-color: rgba(255,255,255,0.01); }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .badge-alta { background-color: var(--warning); color: #000; }
-        .badge-urgente { background-color: var(--danger); color: #fff; }
-        .badge-media { background-color: var(--accent-color); color: #fff; }
-        .badge-bassa { background-color: var(--text-muted); color: #000; }
+        /* Badges e Stati */
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-alta { background-color: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-urgente { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .badge-media { background-color: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid var(--accent-color); }
+        .badge-bassa { background-color: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid var(--text-muted); }
         
-        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .status-badge.attesa { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-        .status-badge.ordinato { background: rgba(99, 102, 241, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
-        .status-badge.consegnato { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .status-badge.rifiutato { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .status-badge.attesa { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .status-badge.ordinato { background: rgba(99, 102, 241, 0.12); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); }
+        .status-badge.consegnato { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .status-badge.rifiutato { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
 
-        .select-status { padding: 4px 6px; font-size: 12px; font-weight: bold; background: #1e293b; border-radius: 4px; border: 1px solid #475569; cursor: pointer; color: white; width: auto; margin: 0; }
+        .select-status { padding: 6px 10px; font-size: 12px; font-weight: bold; background: #0f172a; border-radius: 6px; border: 1px solid #475569; cursor: pointer; color: white; width: auto; margin: 0; }
         .select-status.status-attesa { border-color: var(--warning); color: var(--warning); }
-        .select-status.status-ordinato { border-color: var(--accent-color); color: var(--accent-color); }
+        .select-status.status-ordinato { border-color: var(--accent-color); color: #818cf8; }
         .select-status.status-consegnato { border-color: var(--success); color: var(--success); }
         .select-status.status-rifiutato { border-color: var(--danger); color: var(--danger); }
         
-        .btn-view-link { display: inline-block; background: #1e293b; padding: 4px 8px; border-radius: 4px; color: #38bdf8; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid #475569; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .btn-view-link:hover { background: #334155; color: white; }
+        .btn-view-link { display: inline-flex; align-items: center; background: #1e293b; padding: 5px 10px; border-radius: 6px; color: #38bdf8; text-decoration: none; font-size: 12px; font-weight: 600; border: 1px solid #334155; transition: all 0.2s ease; }
+        .btn-view-link:hover { background: #334155; color: white; border-color: #475569; }
+
+        /* Credits footer Login */
+        .credits-tag {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
 
-    <div class="logo-container">
-        <svg class="logo-svg" viewBox="0 0 800 100" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="15" width="12" height="70" fill="#0c4a6e" rx="2"/>
-            <rect x="30" y="25" width="12" height="60" fill="#0284c7" rx="2"/>
-            <rect x="50" y="40" width="12" height="45" fill="#38bdf8" rx="2"/>
-            <path d="M 15,15 L 55,40 L 55,55 L 15,30 Z" fill="#0ea5e9" opacity="0.3"/>
-            <text x="90" y="52" font-family="'Georgia', 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#0f172a" letter-spacing="2">ISTITUTO SUPERIORE ANTONIO SCARPA</text>
-            <text x="92" y="78" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#64748b" letter-spacing="1.5">REGISTRO GESTIONALE ACQUISTI & MATERIALI • UFFICIO TECNICO</text>
-        </svg>
+    <div class="header-banner">
+        <img src="https://cspace.spaggiari.eu//pub/TVII0004/TVII0004-intestazione-nuova-senzaloghi.png?_t=1712923868" alt="Istituto Superiore Antonio Scarpa">
     </div>
 
-    <div id="loginSection" class="card" style="max-width: 450px; margin: 40px auto;">
-        <h2>Accedi al portale richieste</h2>
-        <p style="color: var(--text-muted)">Inserisci credenziali personali o di reparto</p>
+    <div id="loginSection" class="card" style="max-width: 420px; margin: 40px auto;">
+        <h2 style="text-align: center; margin-bottom: 8px;">Accesso Portale</h2>
+        <p style="color: var(--text-muted); text-align: center; margin-bottom: 24px; font-size: 14px;">Area Richieste Ufficio Tecnico</p>
         <form id="loginForm">
             <label>Email Istituzionale</label>
             <input type="email" id="loginEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
             
-            <div style="margin-top:15px;">
+            <div style="margin-top:16px;">
                 <label>Password</label>
                 <input type="password" id="loginPassword" placeholder="••••••••" required>
             </div>
             
-            <button type="submit" style="width:100%; margin-top:20px;">Accedi</button>
+            <button type="submit" style="width:100%; margin-top:24px;">Effettua l'accesso</button>
         </form>
+        <div class="credits-tag">@by UFFICIOTECNICO</div>
     </div>
 
     <div id="userSection" class="hidden">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap: 15px;">
                 <div>
                     <h2>Invia una Richiesta Materiali</h2>
-                    <p style="color:var(--text-muted)">Dipartimento: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"></span></p>
+                    <p style="color:var(--text-muted); margin: 4px 0 0 0;">Dipartimento: <span id="lblDept" style="color:#818cf8; font-weight:bold;"></span></p>
                 </div>
-                <button onclick="logout()" class="btn-danger">Esci</button>
+                <button onclick="logout()" class="btn-danger">Esci dal portale</button>
             </div>
             
             <form id="multiProductForm">
-                <p>Righe materiali attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
+                <p style="font-size: 14px;">Righe materiali attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span> / 100</p>
                 <div class="table-responsive">
                     <table class="materials-table">
                         <thead>
                             <tr>
                                 <th>Materiale / Prodotto</th>
-                                <th style="width:150px;">Priorità</th>
-                                <th>Giustificazione</th>
+                                <th style="width:160px;">Priorità</th>
+                                <th>Giustificazione dell'acquisto</th>
                                 <th>Fornitore Referente</th>
-                                <th style="width:50px;">Azione</th>
+                                <th style="width:50px; text-align: center;">Azione</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -154,7 +270,7 @@
                                 </td>
                                 <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
                                 <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-                                <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+                                <td style="text-align: center;"><button type="button" class="btn-danger" style="padding: 8px 12px;" onclick="removeRow(this)">✕</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -167,28 +283,28 @@
                 <div class="drive-instructions-box">
                     <h4>📂 Istruzioni per l'inserimento del Preventivo (Opzionale)</h4>
                     <ol>
-                        <li>Clicca su questo pulsante per aprire la cartella Drive condivisa: 
+                        <li>Clicca qui per caricare il documento nella cartella comune: 
                             <br>
-                            <a href="https://drive.google.com/drive/folders/1EQZebliAZHxpIzHEVOxy4013rNf0e-0P" target="_blank" class="drive-link-btn">📁 Apri Cartella Drive Preventivi</a>
+                            <a href="https://drive.google.com/drive/folders/1EQZebliAZHxpIzHEVOxy4013rNf0e-0P" target="_blank" class="drive-link-btn">📁 Apri Cartella Drive Condivisa</a>
                         </li>
-                        <li>Carica il tuo file di preventivo all'interno della cartella Drive.</li>
-                        <li>Fai clic con il tasto destro sul file caricato, seleziona <strong>Condividi -> Copia link</strong>.</li>
-                        <li>Incolla il link appena copiato nel campo qui sotto:</li>
+                        <li>Trascina o carica il tuo preventivo all'interno del Drive appena aperto.</li>
+                        <li>Fai tasto destro sul file caricato, seleziona <strong>Condividi -> Copia link</strong>.</li>
+                        <li>Incolla il link generato nel campo qui sotto:</li>
                     </ol>
                     <div style="margin-top:12px;">
-                        <input type="url" id="linkPreventivoInput" placeholder="https://drive.google.com/file/d/...">
+                        <input type="url" id="linkPreventivoInput" placeholder="Incolla qui il link di condivisione di Google Drive (https://drive.google.com/...)">
                     </div>
                 </div>
 
-                <div style="margin-top:20px;">
-                    <button type="submit" id="btnInviaRichiesta" style="padding:12px 30px; font-size:15px;">Invia Elenco Richiesta Completo</button>
+                <div style="margin-top:25px;">
+                    <button type="submit" id="btnInviaRichiesta" style="padding:14px 35px; font-size:15px;">Invia Elenco Richiesta Completo</button>
                 </div>
             </form>
         </div>
 
         <div class="card">
             <h3>Stato delle tue Richieste Inviate</h3>
-            <div class="table-responsive">
+            <div class="table-responsive" style="margin-top: 15px;">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -200,7 +316,7 @@
                         </tr>
                     </thead>
                     <tbody id="userRequestsTableBody">
-                        <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Caricamento storico in corso...</td></tr>
+                        <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Caricamento storico in corso...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -208,10 +324,10 @@
     </div>
 
     <div id="adminSection" class="hidden">
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 15px;">
             <h2>Pannello Controllo Amministratore (Ufficio Tecnico)</h2>
-            <div style="display:flex; gap:10px;">
-                <button onclick="loadAdminRequests()" class="btn-success" style="background:#0284c7;">🔄 Aggiorna Elenco</button>
+            <div style="display:flex; gap:12px;">
+                <button onclick="loadAdminRequests()" class="btn-success" style="background:#0284c7;">🔄 Aggiorna Registro</button>
                 <button onclick="logout()" class="btn-danger">Esci</button>
             </div>
         </div>
@@ -219,14 +335,14 @@
         <div class="admin-grid">
             <div class="card">
                 <h3>Monitoraggio Richieste per Dipartimento</h3>
-                <div id="departmentsContainer" class="scrollable-departments-zone">
-                    <div style="text-align:center; color:var(--text-muted); padding:20px;">Caricamento richieste in corso...</div>
+                <div id="departmentsContainer" class="scrollable-departments-zone" style="margin-top: 15px;">
+                    <div style="text-align:center; color:var(--text-muted); padding:30px;">Caricamento richieste in corso...</div>
                 </div>
             </div>
             
             <div class="card" style="height: fit-content; position: sticky; top: 20px;">
                 <h3>Abilita Docente / Reparto</h3>
-                <form id="addUserForm">
+                <form id="addUserForm" style="margin-top: 15px;">
                     <label>Seleziona Dipartimento</label>
                     <select id="newDept" required>
                         <option value="Filosofia, Storia e Scienze Umane">Filosofia, Storia e Scienze Umane</option>
@@ -243,13 +359,13 @@
                         <option value="Sostegno">Sostegno</option>
                     </select>
                     
-                    <label style="margin-top:15px; display:block;">Email Istituzionale</label>
+                    <label style="margin-top:16px; display:block;">Email Istituzionale</label>
                     <input type="email" id="newEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
                     
-                    <label style="margin-top:15px; display:block;">Assegna Password</label>
+                    <label style="margin-top:16px; display:block;">Assegna Password</label>
                     <input type="text" id="newPassword" placeholder="Password temporanea" required>
                     
-                    <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Salva in Anagrafica</button>
+                    <button type="submit" class="btn-success" style="width:100%; margin-top:24px;">Salva in Anagrafica</button>
                 </form>
             </div>
         </div>
@@ -258,7 +374,7 @@
 
 <script>
     // INCOLLA QUI IL NUOVO URL DELLA WEB APP GENERATO DOPO LA NUOVA DISTRIBUZIONE
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKQBnTTG8FyMHj8ZI5hfOaj5JdWgMXvMJPco7MLSN4NR30h2QKyVnkYayu4Aodcgur/exec";
+    const WEB_APP_URL = "INCOLLA_QUI_IL_NUOVO_URL_DELLA_WEB_APP";
     let session = { email: "", dept: "", role: "" };
 
     // Gestione Login
@@ -303,7 +419,7 @@
     // Caricamento Storico Richieste Utente
     function loadUserRequests() {
         const tbody = document.getElementById('userRequestsTableBody');
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Recupero dello stato delle richieste...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Recupero dello stato delle richieste...</td></tr>`;
 
         const formBody = new URLSearchParams();
         formBody.append('action', 'get_requests');
@@ -341,18 +457,18 @@
                         tbody.appendChild(tr);
                     });
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Non hai ancora inviato nessuna richiesta.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Non hai ancora inviato nessuna richiesta.</td></tr>`;
                 }
             }
         }).catch(() => {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:15px;">Impossibile caricare lo stato attuale.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:20px;">Impossibile caricare lo stato attuale.</td></tr>`;
         });
     }
 
     // Caricamento Pannello Admin
     function loadAdminRequests() {
         const container = document.getElementById('departmentsContainer');
-        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Divisione e impaginazione dati per Dipartimento...</div>`;
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:30px;">Divisione e impaginazione dati per Dipartimento...</div>`;
 
         const formBody = new URLSearchParams();
         formBody.append('action', 'get_requests');
@@ -381,8 +497,8 @@
                     
                     deptBlock.innerHTML = `
                         <div class="dept-title">
-                            🏢 Dipartimento di ${deptName} 
-                            <span style="font-size:12px; background:#334155; padding:2px 8px; border-radius:10px; color:var(--text-muted)">
+                            <span>🏢 Dipartimento di ${deptName}</span> 
+                            <span style="font-size:12px; background:#1e293b; padding:3px 10px; border-radius:12px; color:var(--text-muted)">
                                 ${elencoRichiesteDept.length} ${elencoRichiesteDept.length === 1 ? 'richiesta' : 'richieste'}
                             </span>
                         </div>
@@ -418,11 +534,11 @@
                         if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
                         if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
 
-                        let cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">Nessuno</span>`;
+                        let cellaAllegato = `<span style="color:var(--text-muted); font-size:12px;">Nessuno</span>`;
                         if(req.allegato && req.allegato.startsWith("http")) {
                             cellaAllegato = `<a href="${req.allegato}" target="_blank" class="btn-view-link" title="${req.allegato}">🔗 Apri Link</a>`;
                         } else if(req.allegato) {
-                            cellaAllegato = `<span style="color:var(--text-muted); font-size:11px;">${req.allegato}</span>`;
+                            cellaAllegato = `<span style="color:var(--text-muted); font-size:12px;">${req.allegato}</span>`;
                         }
 
                         tr.innerHTML = `
@@ -445,10 +561,10 @@
                     });
                 });
             } else {
-                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente nel registro globale.</div>`;
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:30px;">Nessuna richiesta presente nel registro globale.</div>`;
             }
         }).catch(() => {
-            container.innerHTML = `<div style="text-align:center; color:var(--danger); padding:20px;">Errore nel caricamento dei dati.</div>`;
+            container.innerHTML = `<div style="text-align:center; color:var(--danger); padding:30px;">Errore nel caricamento dei dati.</div>`;
         });
     }
 
@@ -487,7 +603,7 @@
             <td><select class="p-priorita" required><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option></select></td>
             <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
             <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-            <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+            <td style="text-align: center;"><button type="button" class="btn-danger" style="padding: 8px 12px;" onclick="removeRow(this)">✕</button></td>
         `;
         tbody.appendChild(newRow);
         document.getElementById('rowCount').innerText = currentRows + 1;
@@ -508,7 +624,7 @@
         
         const btnInvia = document.getElementById('btnInviaRichiesta');
         const vecchioTesto = btnInvia.innerText;
-        btnInvia.innerText = "In corso... Salvataggio richieste.";
+        btnInvia.innerText = "Salvataggio in corso...";
         btnInvia.disabled = true;
 
         const linkPreventivoValue = document.getElementById('linkPreventivoInput').value;
