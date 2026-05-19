@@ -14,169 +14,46 @@
             --success: #10b981;
             --danger: #ef4444;
         }
-        
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-            margin: 0; 
-            padding: 20px; 
-        }
-        
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
-
-        /* Stile ottimizzato per il Logo Ufficiale dell'Istituto */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-img {
-            max-width: 100%;
-            height: auto;
-            max-height: 90px;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        .card { 
-            background-color: var(--card-bg); 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); 
-            margin-bottom: 20px; 
-        }
-        
-        h2, h3 { 
-            margin-top: 0; 
-        }
-        
-        .hidden { 
-            display: none !important; 
-        }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 10px; 
-            background: #334155; 
-            border: 1px solid #475569; 
-            color: white; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            margin-top: 5px; 
-        }
-        
-        textarea {
-            resize: vertical;
-        }
-        
-        button { 
-            background: var(--accent-color); 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            font-weight: bold; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        
-        button:hover { 
-            opacity: 0.9; 
-        }
-        
-        /* Tabella inserimento materiali multipli */
-        .materials-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
-        }
-        
-        .materials-table th, .materials-table td { 
-            padding: 10px; 
-            text-align: left; 
-            border-bottom: 1px solid #475569; 
-        }
-        
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .logo-container { text-align: center; margin-bottom: 25px; padding: 10px; background-color: rgba(255, 255, 255, 0.95); border-radius: 8px; }
+        .logo-img { max-width: 100%; height: auto; max-height: 90px; display: block; margin: 0 auto; }
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        h2, h3 { margin-top: 0; }
+        .hidden { display: none !important; }
+        input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
+        button { background: var(--accent-color); color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
         .btn-danger { background: var(--danger); }
         .btn-success { background: var(--success); }
-        
-        /* Dashboard Admin */
-        .admin-grid { 
-            display: grid; 
-            grid-template-columns: 2fr 1fr; 
-            gap: 20px; 
-        }
-        
-        @media (max-width: 768px) {
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .table-responsive { 
-            overflow-x: auto; 
-            max-height: 500px; 
-        }
-        
-        .data-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 14px; 
-        }
-        
-        .data-table th, .data-table td { 
-            padding: 12px; 
-            text-align: left; 
-            border-bottom: 1px solid #334155; 
-        }
-        
-        .data-table th { 
-            background-color: #334155; 
-            position: sticky; 
-            top: 0; 
-        }
+        .admin-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+        .table-responsive { overflow-x: auto; max-height: 500px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        .data-table th { background-color: #334155; position: sticky; top: 0; }
+        .user-info { font-size: 14px; color: var(--text-muted); text-align: right; margin-bottom: 10px;}
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="logo-container">
+        <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
+    </div>
 
-    <div id="loginSection" class="card" style="max-width: 450px; margin: 60px auto;">
-        <div class="logo-container">
-            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
-        </div>
-        <h2>Accedi al portale richieste</h2>
-        <p style="color: var(--text-muted)">Inserisci la tua email istituzionale autorizzata</p>
-        <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
-            <button type="submit" style="width:100%; margin-top:15px;">Accedi</button>
-        </form>
+    <div class="user-info">
+        Connesso come: <strong style="color:white"><?= userEmail ?></strong>
     </div>
 
     <div id="userSection" class="card hidden">
-        <div class="logo-container">
-            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
-            <div>
-                <h2>Invia una Richiesta Materiali</h2>
-                <p style="color:var(--text-muted)">Dipartimento attivo: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"></span></p>
-            </div>
-            <button onclick="logout()" class="btn-danger">Esci</button>
-        </div>
+        <h2>Invia una Richiesta Materiali</h2>
+        <p style="color:var(--text-muted)">Dipartimento: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"><?= userDept ?></span></p>
         
         <form id="multiProductForm">
-            <p>Puoi inserire fino a 100 prodotti in questa richiesta. Righe attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
-            
+            <p>Puoi inserire fino a 100 prodotti. Righe attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
             <div class="table-responsive">
                 <table class="materials-table" id="itemsTable">
                     <thead>
@@ -206,7 +83,6 @@
                     </tbody>
                 </table>
             </div>
-            
             <div style="margin-top:15px; display:flex; gap:10px;">
                 <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi Materiale</button>
                 <button type="submit">Invia Richiesta Cumulativa</button>
@@ -215,13 +91,8 @@
     </div>
 
     <div id="adminSection" class="hidden">
-        <div class="logo-container">
-            <img src="https://www.antonioscarpa.edu.it/wp-content/uploads/2023/11/logo-scarpa.png" alt="Logo IS Antonio Scarpa" class="logo-img">
-        </div>
-
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
+        <div class="card">
             <h2>Pannello di Controllo Amministratore (Ufficio Tecnico)</h2>
-            <button onclick="logout()" class="btn-danger">Esci</button>
         </div>
         
         <div class="admin-grid">
@@ -240,7 +111,8 @@
                             </tr>
                         </thead>
                         <tbody id="adminTableBody">
-                            </tbody>
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati sono protetti e salvati nel Google Sheet.</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -262,93 +134,37 @@
                         <option value="Scienze Naturali">Scienze Naturali</option>
                         <option value="Discipline Tecnologiche">Discipline Tecnologiche</option>
                         <option value="Sostegno">Sostegno</option>
-                        <option value="Ufficio Tecnico / Admin">Amministratore Integrale (Ufficio Tecnico)</option>
                     </select>
                     
                     <label style="margin-top:15px; display:block;">Email Istituzionale da Abilitare</label>
                     <input type="email" id="newEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
-                    
                     <button type="submit" class="btn-success" style="width:100%; margin-top:20px;">Autorizza Accesso</button>
                 </form>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
-    // Sostituire questa stringa con l'URL generato da Google Apps Script (Nuovo Deployment -> App Web)
-    const WEB_APP_URL = "IL_TUO_URL_DI_GOOGLE_APPS_SCRIPT";
+    // Recupera i dati di sessione iniettati in modo sicuro dal server Google
+    const userRole = "<?= userRole ?>";
     
-    let userSession = { email: "", dept: "", role: "" };
-
-    // FUNZIONE DI ACCESSO
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-        
-        // Controllo immediato delle due mail Admin istituzionali
-        const adminEmails = [
-            "ufficiotecnico@antonioscarpa.edu.it",
-            "mariacristina.taddeo@antonioscarpa.edu.it"
-        ];
-
-        if(adminEmails.includes(emailInput)) {
-            loadAdminDashboard("admin", "Ufficio Tecnico / Admin", emailInput);
-            return;
-        }
-
-        // Verifica via database/script per il personale dei dipartimenti
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ action: "login", email: emailInput })
-        }).then(() => {
-            if(emailInput.endsWith("@antonioscarpa.edu.it")) {
-                loadUserDashboard("user", "Personale Scolastico", emailInput);
-            } else {
-                alert("Accesso rifiutato. Dominio email non appartenente all'istituto.");
-            }
-        }).catch(err => {
-            alert("Errore nel collegamento al server.");
-        });
-    });
-
-    function loadUserDashboard(role, dept, email) {
-        userSession = { email, dept, role };
-        document.getElementById('lblDept').innerText = dept;
-        document.getElementById('loginSection').classList.add('hidden');
+    // Smistamento immediato e sicuro lato client
+    if (userRole === "admin") {
+        document.getElementById('adminSection').classList.remove('hidden');
+    } else {
         document.getElementById('userSection').classList.remove('hidden');
     }
 
-    function loadAdminDashboard(role, dept, email) {
-        userSession = { email, dept, role };
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('adminSection').classList.remove('hidden');
-        updateAdminTable();
-    }
-
-    // LOGICA TABELLA DINAMICA MATERIALI (Fino a 100 righe)
     function addRow() {
         const tbody = document.getElementById('tableBody');
         const currentRows = tbody.getElementsByTagName('tr').length;
-        
-        if (currentRows >= 100) {
-            alert("Limite massimo raggiunto: non puoi inserire più di 100 prodotti per invio.");
-            return;
-        }
+        if (currentRows >= 100) return alert("Limite massimo raggiunto.");
         
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td><input type="text" class="p-materiale" required placeholder="Nuovo materiale"></td>
-            <td>
-                <select class="p-priorita" required>
-                    <option value="Bassa">Bassa</option>
-                    <option value="Media" selected>Media</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Urgente">Urgente</option>
-                </select>
-            </td>
+            <td><select class="p-priorita" required><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option></select></td>
             <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
             <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
             <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
@@ -362,15 +178,12 @@
         if(tbody.getElementsByTagName('tr').length > 1) {
             button.closest('tr').remove();
             document.getElementById('rowCount').innerText = tbody.getElementsByTagName('tr').length;
-        } else {
-            alert("È obbligatorio inserire almeno un articolo.");
         }
     }
 
-    // INVIO DATI COMBINATI AL GOOGLE SHEET
+    // INVIO DATI TRAMITE LE FUNZIONI INTERNE SICURE DI GOOGLE (Senza fetch visibili)
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const rows = document.querySelectorAll('#tableBody tr');
         let listaProdotti = [];
         
@@ -385,57 +198,29 @@
 
         const payload = {
             action: "insert_multiple",
-            dipartimento: userSession.dept,
-            email: userSession.email,
+            dipartimento: "<?= userDept ?>",
             prodotti: listaProdotti
         };
 
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(payload)
-        }).then(() => {
-            alert("Richiesta registrata! Inseriti correttamente " + listaProdotti.length + " articoli.");
-            
-            document.getElementById('tableBody').innerHTML = `
-                <tr>
-                    <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
-                    <td><select class="p-priorita" required><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option></select></td>
-                    <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
-                    <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-                    <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
-                </tr>`;
-            document.getElementById('rowCount').innerText = "1";
-        }).catch(err => alert("Errore durante il salvataggio dei dati nello Sheet."));
+        google.script.run.withSuccessHandler(function() {
+            alert("Richiesta salvata correttamente!");
+            location.reload();
+        }).processAction(payload);
     });
 
-    // ABILITAZIONE NUOVE MAIL (PANNELLO ADMIN)
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const payload = {
             action: "add_authorized_user",
             newDept: document.getElementById('newDept').value,
-            newEmail: document.getElementById('newEmail').value.trim().toLowerCase()
+            newEmail: document.getElementById('newEmail').value
         };
 
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(payload)
-        }).then(() => {
-            alert("L'indirizzo " + payload.newEmail + " è stato autorizzato per il dipartimento selezionato.");
+        google.script.run.withSuccessHandler(function() {
+            alert("Utente abilitato!");
             document.getElementById('addUserForm').reset();
-        }).catch(err => alert("Impossibile connettersi al database utenti."));
+        }).processAction(payload);
     });
-
-    function updateAdminTable() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati completi e gli stati in tempo reale sono memorizzati sul foglio Google Sheet collegato.</td></tr>`;
-    }
-
-    function logout() {
-        location.reload();
-    }
 </script>
 </body>
 </html>
