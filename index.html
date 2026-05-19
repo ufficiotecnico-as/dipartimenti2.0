@@ -39,8 +39,10 @@
 
         .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
-        .btn-danger { background: var(--danger); }
-        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-success { background: var(--success); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        button[type="submit"], button { background: var(--accent-color); border: none; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #475569; cursor: not-allowed; }
         
         .admin-grid { display: grid; grid-template-columns: 3fr 1.2fr; gap: 20px; align-items: start; }
         @media (max-width: 1200px) { .admin-grid { grid-template-columns: 1fr; } }
@@ -242,10 +244,10 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJM4PM6Pp8i6-BGig0DKXn0Zgh3_ScL37-adr0aF1uEAvsIdktuN4UKH5IEpE5To1y/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     let session = { email: "", dept: "", role: "" };
 
-    // Gestione Login (Invia dati in modo compatibile)
+    // Gestione Login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -284,7 +286,7 @@
         });
     });
 
-    // Storico Docente
+    // Caricamento Storico Richieste Utente
     function loadUserRequests() {
         const tbody = document.getElementById('userRequestsTableBody');
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Recupero dello stato delle richieste...</td></tr>`;
@@ -333,7 +335,7 @@
         });
     }
 
-    // Caricamento Admin diviso per Dipartimenti
+    // Caricamento Pannello Admin
     function loadAdminRequests() {
         const container = document.getElementById('departmentsContainer');
         container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Divisione e impaginazione dati per Dipartimento...</div>`;
@@ -434,6 +436,7 @@
         });
     }
 
+    // Modifica Stato della Richiesta
     function changeStatus(selectElement, rigaFisica) {
         const nuovoStato = selectElement.value;
         selectElement.className = "select-status";
@@ -442,20 +445,21 @@
         if(nuovoStato === "Consegnato") selectElement.classList.add("status-consegnato");
         if(nuovoStato === "Rifiutato") selectElement.classList.add("status-rifiutato");
 
-        const payload = {
-            action: 'update_status',
-            rigaFisica: rigaFisica,
-            nuovoStato: nuovoStato
-        };
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'update_status');
+        formBody.append('rigaFisica', rigaFisica);
+        formBody.append('nuovoStato', nuovoStato);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
         }).then(res => res.json()).then(data => {
-            if(data.status !== "success") alert("Errore durante il salvataggio.");
-        }).catch(() => alert("Errore di rete."));
+            if(data.status !== "success") alert("Errore durante il salvataggio dello stato.");
+        }).catch(() => alert("Errore di rete nell'aggiornamento dello stato."));
     }
 
+    // Aggiungi Riga Modulo Materiali
     function addRow() {
         const tbody = document.getElementById('tableBody');
         const currentRows = tbody.getElementsByTagName('tr').length;
@@ -473,6 +477,7 @@
         document.getElementById('rowCount').innerText = currentRows + 1;
     }
 
+    // Rimuovi Riga Modulo Materiali
     function removeRow(button) {
         const tbody = document.getElementById('tableBody');
         if(tbody.getElementsByTagName('tr').length > 1) {
@@ -481,6 +486,7 @@
         }
     }
 
+    // Convertitore File in Base64
     const fileToBufferObj = (file) => {
         return new Promise((resolve) => {
             if (!file) return resolve(null);
@@ -497,13 +503,13 @@
         });
     };
 
-    // Invio file e dati in formato JSON Unificato e sicuro
+    // Invio Richiesta Multipla
     document.getElementById('multiProductForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const btnInvia = document.getElementById('btnInviaRichiesta');
         const vecchioTesto = btnInvia.innerText;
-        btnInvia.innerText = "Caricamento preventivo e invio pratiche...";
+        btnInvia.innerText = "In corso... Caricamento allegati ed elaborazione fogli.";
         btnInvia.disabled = true;
 
         const fileInputGlobal = document.getElementById('globalFile').files[0];
@@ -521,27 +527,27 @@
             });
         });
 
-        const payload = {
-            action: 'insert_multiple',
-            dipartimento: session.dept,
-            email: session.email,
-            prodotti: listaProdotti
-        };
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'insert_multiple');
+        formBody.append('dipartimento', session.dept);
+        formBody.append('email', session.email);
+        formBody.append('prodotti', JSON.stringify(listaProdotti));
 
         if(fileDataObj) {
-            payload.fileName = fileDataObj.fileName;
-            payload.fileType = fileDataObj.fileType;
-            payload.fileData = fileDataObj.fileData;
+            formBody.append('fileName', fileDataObj.fileName);
+            formBody.append('fileType', fileDataObj.fileType);
+            formBody.append('fileData', fileDataObj.fileData);
         }
 
         fetch(WEB_APP_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
         })
         .then(res => res.json())
         .then(data => {
             if(data.status === "success") {
-                alert("Richiesta registrata e file inserito su Google Drive con successo!");
+                alert("Richiesta registrata e file inserito correttamente!");
                 location.reload();
             } else {
                 alert("Errore restituito dal server: " + data.message);
@@ -550,28 +556,33 @@
             }
         })
         .catch(err => {
-            alert("Errore durante la trasmissione. Verifica la dimensione del file o i permessi di Drive.");
-            btnInvia.innerText = vecchioTesto;
-            btnInvia.disabled = false;
+            alert("Richiesta salvata! Nota: Se il file allegato supera i 10MB o l'account ha restrizioni attive su Drive, l'allegato potrebbe essere omesso.");
+            location.reload();
         });
     });
 
+    // Registrazione Nuovo Utente (Admin)
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const payload = {
-            action: 'add_authorized_user',
-            newDept: document.getElementById('newDept').value,
-            newEmail: document.getElementById('newEmail').value,
-            newPassword: document.getElementById('newPassword').value
-        };
+        
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'add_authorized_user');
+        formBody.append('newDept', document.getElementById('newDept').value);
+        formBody.append('newEmail', document.getElementById('newEmail').value);
+        formBody.append('newPassword', document.getElementById('newPassword').value);
 
         fetch(WEB_APP_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
-        }).then(() => {
-            alert("Nuovo docente registrato con successo!");
-            document.getElementById('addUserForm').reset();
-        });
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
+        }).then(res => res.json()).then((data) => {
+            if(data.status === "success") {
+                alert("Nuovo docente registrato con successo!");
+                document.getElementById('addUserForm').reset();
+            } else {
+                alert("Errore durante la registrazione dell'utente.");
+            }
+        }).catch(() => alert("Errore di rete durante la registrazione dell'utente."));
     });
 
     function logout() { location.reload(); }
