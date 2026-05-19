@@ -181,7 +181,7 @@
 </div>
 
 <script>
-    // URL del tuo Google Apps Script configurato ed inserito
+    // URL Web App di Google Apps Script collegata ed impostata
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     
     let session = { email: "", dept: "", role: "" };
@@ -199,17 +199,21 @@
         }
     });
 
-    // Gestione Login con transizione e gestione CORS
+    // Gestione Login con bypass definitivo dei blocchi CORS
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
 
+        // Trasformazione del payload in formato URL-encoded per forzare Google ad accettare la richiesta senza blocchi CORS
+        const dataPayload = { action: "login", email: email, password: password };
+        const formBody = new URLSearchParams();
+        formBody.append('contents', JSON.stringify(dataPayload));
+
         fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: "login", email: email, password: password })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
         })
         .then(res => res.json())
         .then(data => {
@@ -229,7 +233,7 @@
         })
         .catch(err => {
             console.error(err);
-            alert("Errore di connessione. Assicurati che nel tuo file Google Apps Script l'opzione di distribuzione sia attiva per 'Chiunque' (Anyone) e di aver salvato l'ultima versione del codice.");
+            alert("Errore di connessione. Se hai già aggiornato l'HTML su GitHub, assicurati di aver eseguito un 'Nuovo Deployment' impostando 'Chi ha accesso: Chiunque' dentro Google Apps Script.");
         });
     });
 
@@ -258,7 +262,7 @@
         }
     }
 
-    // Invio Form Richieste
+    // Invio Form Richieste con bypass CORS
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -273,36 +277,43 @@
             });
         });
 
+        const dataPayload = {
+            action: "insert_multiple",
+            dipartimento: session.dept,
+            email: session.email,
+            prodotti: listaProdotti
+        };
+        const formBody = new URLSearchParams();
+        formBody.append('contents', JSON.stringify(dataPayload));
+
         fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                action: "insert_multiple",
-                dipartimento: session.dept,
-                email: session.email,
-                prodotti: listaProdotti
-            })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
         }).then(() => {
-            alert("Richiesta cumulata inviata con successo al Google Sheet!");
+            alert("Richiesta cumulata registrata con successo nel Google Sheet!");
             location.reload();
         });
     });
 
-    // Inserimento Utenti Autorizzati (Admin)
+    // Inserimento Utenti Autorizzati (Admin) con bypass CORS
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        const dataPayload = {
+            action: "add_authorized_user",
+            newDept: document.getElementById('newDept').value,
+            newEmail: document.getElementById('newEmail').value
+        };
+        const formBody = new URLSearchParams();
+        formBody.append('contents', JSON.stringify(dataPayload));
+
         fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                action: "add_authorized_user",
-                newDept: document.getElementById('newDept').value,
-                newEmail: document.getElementById('newEmail').value
-            })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
         }).then(() => {
-            alert("Nuovo indirizzo email inserito con successo nella whitelist dei dipartimenti!");
+            alert("Nuovo indirizzo email abilitato con successo nella whitelist!");
             document.getElementById('addUserForm').reset();
         });
     });
