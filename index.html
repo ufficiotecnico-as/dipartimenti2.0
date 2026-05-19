@@ -16,7 +16,7 @@
             --warning: #f59e0b;
         }
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         
         .logo-container { 
             text-align: center; 
@@ -39,13 +39,13 @@
         .btn-danger { background: var(--danger); }
         .btn-success { background: var(--success); }
         
-        .admin-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; }
-        @media (max-width: 992px) { .admin-grid { grid-template-columns: 1fr; } }
+        .admin-grid { display: grid; grid-template-columns: 2.8fr 1.2fr; gap: 20px; }
+        @media (max-width: 1200px) { .admin-grid { grid-template-columns: 1fr; } }
         
-        .table-responsive { overflow-x: auto; max-height: 600px; background: #1e293b; border-radius: 8px; }
+        .table-responsive { overflow-x: auto; max-height: 500px; background: #1e293b; border-radius: 8px; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0; }
         .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
-        .data-table th { background-color: #334155; position: sticky; top: 0; color: white; font-weight: 600; }
+        .data-table th { background-color: #334155; position: sticky; top: 0; color: white; font-weight: 600; z-index: 10; }
         .data-table tr:hover { background-color: rgba(255,255,255,0.03); }
         
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
@@ -53,6 +53,19 @@
         .badge-urgente { background-color: var(--danger); color: #fff; }
         .badge-media { background-color: var(--accent-color); color: #fff; }
         .badge-bassa { background-color: var(--text-muted); color: #000; }
+        
+        /* Badge di stato per utenti */
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-badge.attesa { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .status-badge.ordinato { background: rgba(99, 102, 241, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
+        .status-badge.consegnato { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .status-badge.rifiutato { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        .select-status { padding: 5px; font-size: 12px; font-weight: bold; background: #1e293b; border-radius: 4px; border: 1px solid #475569; cursor: pointer; color: white; width: auto; margin: 0; }
+        .select-status.status-attesa { border-color: var(--warning); color: var(--warning); }
+        .select-status.status-ordinato { border-color: var(--accent-color); color: var(--accent-color); }
+        .select-status.status-consegnato { border-color: var(--success); color: var(--success); }
+        .select-status.status-rifiutato { border-color: var(--danger); color: var(--danger); }
     </style>
 </head>
 <body>
@@ -86,51 +99,74 @@
         </form>
     </div>
 
-    <div id="userSection" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <div>
-                <h2>Invia una Richiesta Materiali</h2>
-                <p style="color:var(--text-muted)">Dipartimento: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"></span></p>
+    <div id="userSection" class="hidden">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div>
+                    <h2>Invia una Richiesta Materiali</h2>
+                    <p style="color:var(--text-muted)">Dipartimento: <span id="lblDept" style="color:var(--accent-color); font-weight:bold;"></span></p>
+                </div>
+                <button onclick="logout()" class="btn-danger">Esci</button>
             </div>
-            <button onclick="logout()" class="btn-danger">Esci</button>
+            
+            <form id="multiProductForm">
+                <p>Righe materiali attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
+                <div class="table-responsive">
+                    <table class="materials-table">
+                        <thead>
+                            <tr>
+                                <th>Materiale / Prodotto</th>
+                                <th style="width:150px;">Priorità</th>
+                                <th>Giustificazione</th>
+                                <th>Fornitore Specifico</th>
+                                <th style="width:50px;">Azione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
+                                <td>
+                                    <select class="p-priorita" required>
+                                        <option value="Bassa">Bassa</option>
+                                        <option value="Media" selected>Media</option>
+                                        <option value="Alta">Alta</option>
+                                        <option value="Urgente">Urgente</option>
+                                    </select>
+                                </td>
+                                <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
+                                <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
+                                <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:15px; display:flex; gap:10px;">
+                    <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi Materiale</button>
+                    <button type="submit">Invia Richiesta Cumulativa</button>
+                </div>
+            </form>
         </div>
-        
-        <form id="multiProductForm">
-            <p>Righe materiali attuali: <span id="rowCount" style="font-weight:bold; color:var(--accent-color)">1</span>/100</p>
+
+        <div class="card">
+            <h3>Stato delle tue Richieste Inviate</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:15px;">Elenco aggiornato in tempo reale con le decisioni dell'Ufficio Tecnico</p>
             <div class="table-responsive">
-                <table class="materials-table">
+                <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Materiale / Prodotto</th>
-                            <th style="width:150px;">Priorità</th>
+                            <th>Materiale Richiesto</th>
+                            <th>Priorità</th>
                             <th>Giustificazione</th>
-                            <th>Fornitore Specifico</th>
-                            <th style="width:50px;">Azione</th>
+                            <th>Fornitore</th>
+                            <th>Stato Attuale Pratica</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td><input type="text" class="p-materiale" required placeholder="Es. Cavi rame"></td>
-                            <td>
-                                <select class="p-priorita" required>
-                                    <option value="Bassa">Bassa</option>
-                                    <option value="Media" selected>Media</option>
-                                    <option value="Alta">Alta</option>
-                                    <option value="Urgente">Urgente</option>
-                                </select>
-                            </td>
-                            <td><textarea class="p-giustificazione" rows="1" required placeholder="Perché serve..."></textarea></td>
-                            <td><input type="text" class="p-fornitore" required placeholder="Nome fornitore"></td>
-                            <td><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>
-                        </tr>
+                    <tbody id="userRequestsTableBody">
+                        <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Caricamento storico in corso...</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div style="margin-top:15px; display:flex; gap:10px;">
-                <button type="button" class="btn-success" onclick="addRow()">+ Aggiungi Materiale</button>
-                <button type="submit">Invia Richiesta Cumulativa</button>
-            </div>
-        </form>
+        </div>
     </div>
 
     <div id="adminSection" class="hidden">
@@ -145,18 +181,18 @@
         <div class="admin-grid">
             <div class="card">
                 <h3>Monitoraggio Richieste dei Dipartimenti</h3>
-                <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:15px;">Tutte le richieste estratte in tempo reale dal Google Sheet</p>
+                <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:15px;">Cambia lo stato dal menu a tendina per aggiornare direttamente il Google Sheet</p>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Dipartimento</th>
                                 <th>Richiedente</th>
-                                <th>Materiale richiesto</th>
+                                <th>Materiale</th>
                                 <th>Priorità</th>
-                                <th>Giustificazione / Note</th>
-                                <th>Fornitore ind.</th>
-                                <th>Stato</th>
+                                <th>Giustificazione</th>
+                                <th>Fornitore</th>
+                                <th style="min-width:160px;">Stato Pratica</th>
                             </tr>
                         </thead>
                         <tbody id="adminTableBody">
@@ -226,10 +262,11 @@
                 
                 if(data.role === "admin") {
                     document.getElementById('adminSection').classList.remove('hidden');
-                    loadAdminRequests(); // Avvia il caricamento automatico dei dati
+                    loadAdminRequests();
                 } else {
                     document.getElementById('lblDept').innerText = data.dept;
                     document.getElementById('userSection').classList.remove('hidden');
+                    loadUserRequests(); // Carica lo storico personale del docente appena entra
                 }
             } else {
                 alert(data.message);
@@ -240,7 +277,62 @@
         });
     });
 
-    // NUOVO: Funzione Admin per estrarre e mostrare le richieste
+    // NUOVO: Funzione per far vedere lo stato delle richieste all'utente standard (Docente)
+    function loadUserRequests() {
+        const tbody = document.getElementById('userRequestsTableBody');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Recupero dello stato delle richieste...</td></tr>`;
+
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'get_requests'); // Chiediamo le richieste
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === "success") {
+                // Filtra solo le richieste che corrispondono all'email del docente loggato
+                const mieRichieste = res.data.filter(req => req.email.toLowerCase().trim() === session.email.toLowerCase().trim());
+                
+                if(mieRichieste.length > 0) {
+                    tbody.innerHTML = "";
+                    // Mostra le più recenti in alto (.reverse())
+                    mieRichieste.reverse().forEach(req => {
+                        const tr = document.createElement('tr');
+                        
+                        let badgeClass = "badge-media";
+                        if(req.priorita.toLowerCase() === 'alta') badgeClass = "badge-alta";
+                        if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
+                        if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
+
+                        // Determina lo stile grafico del badge dello stato
+                        let statusClass = "attesa";
+                        if(req.stato === "Ordinato") statusClass = "ordinato";
+                        if(req.stato === "Consegnato") statusClass = "consegnato";
+                        if(req.stato === "Rifiutato") statusClass = "rifiutato";
+
+                        tr.innerHTML = `
+                            <td style="font-weight:bold; color:white;">${req.materiale}</td>
+                            <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
+                            <td style="font-style:italic; max-width:250px; white-space:normal;">${req.giustificazione}</td>
+                            <td>${req.fornitore}</td>
+                            <td><span class="status-badge ${statusClass}">${req.stato}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Non hai ancora inviato nessuna richiesta.</td></tr>`;
+                }
+            }
+        })
+        .catch(() => {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger); padding:15px;">Impossibile caricare lo stato attuale.</td></tr>`;
+        });
+    }
+
+    // Funzione Admin per estrarre e monitorare tutte le richieste
     function loadAdminRequests() {
         const tbody = document.getElementById('adminTableBody');
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Aggiornamento dati dal server Google...</td></tr>`;
@@ -256,35 +348,73 @@
         .then(res => res.json())
         .then(res => {
             if(res.status === "success" && res.data.length > 0) {
-                tbody.innerHTML = ""; // Svuota la riga di caricamento
+                tbody.innerHTML = "";
                 
-                // Genera le righe della tabella al contrario per vedere le più recenti in alto
                 res.data.reverse().forEach(req => {
                     const tr = document.createElement('tr');
                     
-                    // Definisce la classe css corretta per il badge priorità
                     let badgeClass = "badge-media";
                     if(req.priorita.toLowerCase() === 'alta') badgeClass = "badge-alta";
                     if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
                     if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
+
+                    let selectColorClass = "status-attesa";
+                    if(req.stato === "Ordinato") selectColorClass = "status-ordinato";
+                    if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
+                    if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
 
                     tr.innerHTML = `
                         <td style="font-weight:600; color:#38bdf8;">${req.dipartimento}</td>
                         <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
                         <td style="font-weight:bold; color:white;">${req.materiale}</td>
                         <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
-                        <td style="max-width:250px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
+                        <td style="max-width:200px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
                         <td>${req.fornitore}</td>
-                        <td><strong style="color:var(--success); font-size:12px;">● ${req.stato}</strong></td>
+                        <td>
+                            <select class="select-status ${selectColorClass}" onchange="changeStatus(this, ${req.rigaFisica})">
+                                <option value="In attesa di preventivo" ${req.stato === "In attesa di preventivo" ? "selected" : ""}>⏳ In attesa</option>
+                                <option value="Ordinato" ${req.stato === "Ordinato" ? "selected" : ""}>📦 Ordinato</option>
+                                <option value="Consegnato" ${req.stato === "Consegnato" ? "selected" : ""}>✅ Consegnato</option>
+                                <option value="Rifiutato" ${req.stato === "Rifiutato" ? "selected" : ""}>❌ Rifiutato</option>
+                            </select>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } else {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente nel registro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente.</td></tr>`;
             }
         })
         .catch(err => {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:20px;">Errore nel recupero dati. Ricontrolla il deployment dello script.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:20px;">Errore nel recupero dati.</td></tr>`;
+        });
+    }
+
+    function changeStatus(selectElement, rigaFisica) {
+        const nuovoStato = selectElement.value;
+        
+        selectElement.className = "select-status";
+        if(nuovoStato === "In attesa di preventivo") selectElement.classList.add("status-attesa");
+        if(nuovoStato === "Ordinato") selectElement.classList.add("status-ordinato");
+        if(nuovoStato === "Consegnato") selectElement.classList.add("status-consegnato");
+        if(nuovoStato === "Rifiutato") selectElement.classList.add("status-rifiutato");
+
+        const formBody = new URLSearchParams();
+        formBody.append('action', 'update_status');
+        formBody.append('rigaFisica', rigaFisica);
+        formBody.append('nuovoStato', nuovoStato);
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status !== "success") alert("Errore durante il salvataggio dello stato.");
+        })
+        .catch(() => {
+            alert("Errore di rete.");
         });
     }
 
@@ -313,7 +443,6 @@
         }
     }
 
-    // Invio form richieste
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -344,7 +473,6 @@
         });
     });
 
-    // Registrazione nuovo utente
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
