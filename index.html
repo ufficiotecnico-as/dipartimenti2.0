@@ -16,7 +16,7 @@
             --warning: #f59e0b;
         }
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1500px; margin: 0 auto; }
         
         .logo-container { 
             text-align: center; 
@@ -34,19 +34,25 @@
         input, select, textarea { width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; margin-top: 5px; }
         button { background: var(--accent-color); color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         button:hover { opacity: 0.9; }
+        
         .materials-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .materials-table th, .materials-table td { padding: 10px; text-align: left; border-bottom: 1px solid #475569; }
         .btn-danger { background: var(--danger); }
         .btn-success { background: var(--success); }
         
-        .admin-grid { display: grid; grid-template-columns: 2.8fr 1.2fr; gap: 20px; }
+        /* Griglia principale Admin */
+        .admin-grid { display: grid; grid-template-columns: 3fr 1.2fr; gap: 20px; }
         @media (max-width: 1200px) { .admin-grid { grid-template-columns: 1fr; } }
         
-        .table-responsive { overflow-x: auto; max-height: 500px; background: #1e293b; border-radius: 8px; }
+        /* Contenitore dei blocchi dipartimento */
+        .dept-container { margin-bottom: 25px; border: 1px solid #334155; border-radius: 8px; padding: 15px; background: rgba(30, 41, 59, 0.5); }
+        .dept-title { color: #38bdf8; font-size: 16px; margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+        
+        .table-responsive { overflow-x: auto; max-height: 400px; background: #1e293b; border-radius: 6px; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0; }
-        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
         .data-table th { background-color: #334155; position: sticky; top: 0; color: white; font-weight: 600; z-index: 10; }
-        .data-table tr:hover { background-color: rgba(255,255,255,0.03); }
+        .data-table tr:hover { background-color: rgba(255,255,255,0.02); }
         
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .badge-alta { background-color: var(--warning); color: #000; }
@@ -54,14 +60,13 @@
         .badge-media { background-color: var(--accent-color); color: #fff; }
         .badge-bassa { background-color: var(--text-muted); color: #000; }
         
-        /* Badge di stato per utenti */
         .status-badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .status-badge.attesa { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
         .status-badge.ordinato { background: rgba(99, 102, 241, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
         .status-badge.consegnato { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
         .status-badge.rifiutato { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
 
-        .select-status { padding: 5px; font-size: 12px; font-weight: bold; background: #1e293b; border-radius: 4px; border: 1px solid #475569; cursor: pointer; color: white; width: auto; margin: 0; }
+        .select-status { padding: 4px 6px; font-size: 12px; font-weight: bold; background: #1e293b; border-radius: 4px; border: 1px solid #475569; cursor: pointer; color: white; width: auto; margin: 0; }
         .select-status.status-attesa { border-color: var(--warning); color: var(--warning); }
         .select-status.status-ordinato { border-color: var(--accent-color); color: var(--accent-color); }
         .select-status.status-consegnato { border-color: var(--success); color: var(--success); }
@@ -180,25 +185,11 @@
         
         <div class="admin-grid">
             <div class="card">
-                <h3>Monitoraggio Richieste dei Dipartimenti</h3>
-                <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:15px;">Cambia lo stato dal menu a tendina per aggiornare direttamente il Google Sheet</p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Dipartimento</th>
-                                <th>Richiedente</th>
-                                <th>Materiale</th>
-                                <th>Priorità</th>
-                                <th>Giustificazione</th>
-                                <th>Fornitore</th>
-                                <th style="min-width:160px;">Stato Pratica</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminTableBody">
-                            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Caricamento richieste in corso...</td></tr>
-                        </tbody>
-                    </table>
+                <h3>Monitoraggio Richieste per Dipartimento</h3>
+                <p style="color:var(--text-muted); font-size:12px; margin-top:-5px; margin-bottom:20px;">Le richieste sono organizzate automaticamente in base al reparto di provenienza</p>
+                
+                <div id="departmentsContainer">
+                    <div style="text-align:center; color:var(--text-muted); padding:20px;">Caricamento richieste in corso...</div>
                 </div>
             </div>
             
@@ -266,7 +257,7 @@
                 } else {
                     document.getElementById('lblDept').innerText = data.dept;
                     document.getElementById('userSection').classList.remove('hidden');
-                    loadUserRequests(); // Carica lo storico personale del docente appena entra
+                    loadUserRequests();
                 }
             } else {
                 alert(data.message);
@@ -277,13 +268,13 @@
         });
     });
 
-    // NUOVO: Funzione per far vedere lo stato delle richieste all'utente standard (Docente)
+    // Storico personale Docente
     function loadUserRequests() {
         const tbody = document.getElementById('userRequestsTableBody');
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:15px;">Recupero dello stato delle richieste...</td></tr>`;
 
         const formBody = new URLSearchParams();
-        formBody.append('action', 'get_requests'); // Chiediamo le richieste
+        formBody.append('action', 'get_requests');
 
         fetch(WEB_APP_URL, {
             method: 'POST',
@@ -293,12 +284,10 @@
         .then(res => res.json())
         .then(res => {
             if(res.status === "success") {
-                // Filtra solo le richieste che corrispondono all'email del docente loggato
                 const mieRichieste = res.data.filter(req => req.email.toLowerCase().trim() === session.email.toLowerCase().trim());
                 
                 if(mieRichieste.length > 0) {
                     tbody.innerHTML = "";
-                    // Mostra le più recenti in alto (.reverse())
                     mieRichieste.reverse().forEach(req => {
                         const tr = document.createElement('tr');
                         
@@ -307,7 +296,6 @@
                         if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
                         if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
 
-                        // Determina lo stile grafico del badge dello stato
                         let statusClass = "attesa";
                         if(req.stato === "Ordinato") statusClass = "ordinato";
                         if(req.stato === "Consegnato") statusClass = "consegnato";
@@ -332,10 +320,10 @@
         });
     }
 
-    // Funzione Admin per estrarre e monitorare tutte le richieste
+    // AGGIORNATO: Funzione Admin che raggruppa ed esplode le tabelle per singolo Dipartimento
     function loadAdminRequests() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Aggiornamento dati dal server Google...</td></tr>`;
+        const container = document.getElementById('departmentsContainer');
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Divisione e impaginazione dati per Dipartimento...</div>`;
 
         const formBody = new URLSearchParams();
         formBody.append('action', 'get_requests');
@@ -348,48 +336,100 @@
         .then(res => res.json())
         .then(res => {
             if(res.status === "success" && res.data.length > 0) {
-                tbody.innerHTML = "";
+                container.innerHTML = ""; // Pulisce l'avviso di caricamento
                 
+                // 1. Raggruppa i dati in un oggetto indicizzato per nome dipartimento
+                const datiRaggruppati = {};
+                
+                // Mettiamo in ordine inverso così le ultime inserite appaiono prime nella rispettiva tabella
                 res.data.reverse().forEach(req => {
-                    const tr = document.createElement('tr');
-                    
-                    let badgeClass = "badge-media";
-                    if(req.priorita.toLowerCase() === 'alta') badgeClass = "badge-alta";
-                    if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
-                    if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
-
-                    let selectColorClass = "status-attesa";
-                    if(req.stato === "Ordinato") selectColorClass = "status-ordinato";
-                    if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
-                    if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
-
-                    tr.innerHTML = `
-                        <td style="font-weight:600; color:#38bdf8;">${req.dipartimento}</td>
-                        <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
-                        <td style="font-weight:bold; color:white;">${req.materiale}</td>
-                        <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
-                        <td style="max-width:200px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
-                        <td>${req.fornitore}</td>
-                        <td>
-                            <select class="select-status ${selectColorClass}" onchange="changeStatus(this, ${req.rigaFisica})">
-                                <option value="In attesa di preventivo" ${req.stato === "In attesa di preventivo" ? "selected" : ""}>⏳ In attesa</option>
-                                <option value="Ordinato" ${req.stato === "Ordinato" ? "selected" : ""}>📦 Ordinato</option>
-                                <option value="Consegnato" ${req.stato === "Consegnato" ? "selected" : ""}>✅ Consegnato</option>
-                                <option value="Rifiutato" ${req.stato === "Rifiutato" ? "selected" : ""}>❌ Rifiutato</option>
-                            </select>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                    const nomeDept = req.dipartimento || "Dipartimento non specificato";
+                    if (!datiRaggruppati[nomeDept]) {
+                        datiRaggruppati[nomeDept] = [];
+                    }
+                    datiRaggruppati[nomeDept].push(req);
                 });
+
+                // 2. Genera graficamente una card/tabella autonoma per ciascun dipartimento trovato
+                Object.keys(datiRaggruppati).sort().forEach(deptName => {
+                    const elencoRichiesteDept = datiRaggruppati[deptName];
+                    
+                    const deptBlock = document.createElement('div');
+                    deptBlock.className = "dept-container";
+                    
+                    // Header del singolo dipartimento con conteggio elementi
+                    deptBlock.innerHTML = `
+                        <div class="dept-title">
+                            🏢 Dipartimento di ${deptName} 
+                            <span style="font-size:12px; background:#334155; padding:2px 8px; border-radius:10px; color:var(--text-muted)">
+                                ${elencoRichiesteDept.length} ${elencoRichiesteDept.length === 1 ? 'richiesta' : 'richieste'}
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Richiedente</th>
+                                        <th>Materiale</th>
+                                        <th>Priorità</th>
+                                        <th>Giustificazione</th>
+                                        <th>Fornitore</th>
+                                        <th style="min-width:150px;">Stato Pratica</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-${deptName.replace(/\s+/g, '-')}">
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    container.appendChild(deptBlock);
+                    
+                    // Riempie la tabella specifica di questo dipartimento
+                    const tbodySpecifico = document.getElementById(`tbody-${deptName.replace(/\s+/g, '-')}`);
+                    
+                    elencoRichiesteDept.forEach(req => {
+                        const tr = document.createElement('tr');
+                        
+                        let badgeClass = "badge-media";
+                        if(req.priorita.toLowerCase() === 'alta') badgeClass = "badge-alta";
+                        if(req.priorita.toLowerCase() === 'urgente') badgeClass = "badge-urgente";
+                        if(req.priorita.toLowerCase() === 'bassa') badgeClass = "badge-bassa";
+
+                        let selectColorClass = "status-attesa";
+                        if(req.stato === "Ordinato") selectColorClass = "status-ordinato";
+                        if(req.stato === "Consegnato") selectColorClass = "status-consegnato";
+                        if(req.stato === "Rifiutato") selectColorClass = "status-rifiutato";
+
+                        tr.innerHTML = `
+                            <td style="color:var(--text-muted); font-size:12px;">${req.email}</td>
+                            <td style="font-weight:bold; color:white;">${req.materiale}</td>
+                            <td><span class="badge ${badgeClass}">${req.priorita}</span></td>
+                            <td style="max-width:200px; white-space:normal; font-style:italic;">${req.giustificazione}</td>
+                            <td>${req.fornitore}</td>
+                            <td>
+                                <select class="select-status ${selectColorClass}" onchange="changeStatus(this, ${req.rigaFisica})">
+                                    <option value="In attesa di preventivo" ${req.stato === "In attesa di preventivo" ? "selected" : ""}>⏳ In attesa</option>
+                                    <option value="Ordinato" ${req.stato === "Ordinato" ? "selected" : ""}>📦 Ordinato</option>
+                                    <option value="Consegnato" ${req.stato === "Consegnato" ? "selected" : ""}>✅ Consegnato</option>
+                                    <option value="Rifiutato" ${req.stato === "Rifiutato" ? "selected" : ""}>❌ Rifiutato</option>
+                                </select>
+                            </td>
+                        `;
+                        tbodySpecifico.appendChild(tr);
+                    });
+                });
+
             } else {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente.</td></tr>`;
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Nessuna richiesta presente nel registro globale.</div>`;
             }
         })
         .catch(err => {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:20px;">Errore nel recupero dati.</td></tr>`;
+            container.innerHTML = `<div style="text-align:center; color:var(--danger); padding:20px;">Errore nel caricamento e raggruppamento dati.</div>`;
         });
     }
 
+    // Modifica stato istantanea su Google Sheet
     function changeStatus(selectElement, rigaFisica) {
         const nuovoStato = selectElement.value;
         
