@@ -17,16 +17,16 @@
         body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Box Logo */
+        /* Box Logo con Stemma Vettoriale dell'Istituto */
         .logo-container { 
             text-align: center; 
             margin-bottom: 25px; 
-            padding: 15px; 
+            padding: 20px 15px; 
             background-color: #ffffff; 
             border-radius: 8px; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .logo-img { max-width: 100%; height: auto; max-height: 70px; display: block; margin: 0 auto; }
+        .logo-svg { max-width: 100%; height: auto; max-height: 65px; display: block; margin: 0 auto; }
         
         .card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
         h2, h3 { margin-top: 0; }
@@ -44,7 +44,6 @@
         .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
         .data-table th { background-color: #334155; position: sticky; top: 0; }
-        .user-info { font-size: 14px; color: var(--text-muted); text-align: right; margin-bottom: 10px;}
     </style>
 </head>
 <body>
@@ -52,19 +51,25 @@
 <div class="container">
 
     <div class="logo-container">
-        <img src="https://i.ibb.co/6wXgVbV/logo-scarpa-clean.png" onerror="this.style.display='none'; document.getElementById('logoFallbackText').style.display='block';" class="logo-img" alt="IS Antonio Scarpa">
-        <h2 id="logoFallbackText" style="display:none; color:#0f172a; margin:0; font-family:serif; letter-spacing:1px;">ISTITUTO SUPERIORE ANTONIO SCARPA</h2>
+        <svg class="logo-svg" viewBox="0 0 800 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="15" width="12" height="70" fill="#0c4a6e" rx="2"/>
+            <rect x="30" y="25" width="12" height="60" fill="#0284c7" rx="2"/>
+            <rect x="50" y="40" width="12" height="45" fill="#38bdf8" rx="2"/>
+            <path d="M 15,15 L 55,40 L 55,55 L 15,30 Z" fill="#0ea5e9" opacity="0.3"/>
+            <text x="90" y="52" font-family="'Georgia', 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#0f172a" letter-spacing="2">ISTITUTO SUPERIORE ANTONIO SCARPA</text>
+            <text x="92" y="78" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#64748b" letter-spacing="1.5">REGISTRO GESTIONALE ACQUISTI & MATERIALI • UFFICIO TECNICO</text>
+        </svg>
     </div>
 
     <div id="loginSection" class="card" style="max-width: 450px; margin: 40px auto;">
-        <h2>Accedi al portale richieste</h2>
-        <p style="color: var(--text-muted)">Inserisci la tua email istituzionale</p>
+        <h2>Accedi al portale</h2>
+        <p style="color: var(--text-muted)">Inserisci le tue credenziali istituzionali</p>
         <form id="loginForm">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="nome.cognome@antonioscarpa.edu.it" required>
+            <label>Email Istituzionale</label>
+            <input type="email" id="loginEmail" placeholder="ufficiotecnico@antonioscarpa.edu.it" required>
             
             <div id="passwordWrapper" class="hidden" style="margin-top:15px;">
-                <label>Password Amministratore richiesto</label>
+                <label>Password Amministratore</label>
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
             
@@ -141,7 +146,7 @@
                             </tr>
                         </thead>
                         <tbody id="adminTableBody">
-                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati sono protetti e salvati nel Google Sheet.</td></tr>
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted)">I dati e la cronologia completa sono archiviati in tempo reale sul file Google Sheet collegato.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -176,12 +181,12 @@
 </div>
 
 <script>
-    // INSERISCI QUI IL LINK OTTENUTO DALL'APPN WEB DI GOOGLE SCRIPT
-    const WEB_APP_URL = "IL_TUO_URL_DI_GOOGLE_APPS_SCRIPT";
+    // URL del tuo Google Apps Script configurato ed inserito
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVUDLtld0LioRR3QdzRujUO0oqH9cK8j0XvaponwgUWBJyxXVnyNLKr0tDGKmH5FJY/exec";
     
     let session = { email: "", dept: "", role: "" };
 
-    // Mostra il campo password in tempo reale se l'utente scrive l'email da admin
+    // Mostra il campo password se viene digitata un'email amministratore
     document.getElementById('loginEmail').addEventListener('input', function(e) {
         const val = e.target.value.trim().toLowerCase();
         const admins = ["ufficiotecnico@antonioscarpa.edu.it", "mariacristina.taddeo@antonioscarpa.edu.it"];
@@ -194,7 +199,7 @@
         }
     });
 
-    // Gestione Login
+    // Gestione Login con transizione e gestione CORS
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -202,6 +207,8 @@
 
         fetch(WEB_APP_URL, {
             method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ action: "login", email: email, password: password })
         })
         .then(res => res.json())
@@ -220,7 +227,10 @@
                 alert(data.message);
             }
         })
-        .catch(err => alert("Errore di connessione con il database di Google Sheet. Verifica di aver aggiornato l'URL dello script."));
+        .catch(err => {
+            console.error(err);
+            alert("Errore di connessione. Assicurati che nel tuo file Google Apps Script l'opzione di distribuzione sia attiva per 'Chiunque' (Anyone) e di aver salvato l'ultima versione del codice.");
+        });
     });
 
     function addRow() {
@@ -248,7 +258,7 @@
         }
     }
 
-    // Invio Richiesta
+    // Invio Form Richieste
     document.getElementById('multiProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const rows = document.querySelectorAll('#tableBody tr');
@@ -265,6 +275,8 @@
 
         fetch(WEB_APP_URL, {
             method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 action: "insert_multiple",
                 dipartimento: session.dept,
@@ -272,23 +284,25 @@
                 prodotti: listaProdotti
             })
         }).then(() => {
-            alert("Richiesta inviata con successo!");
+            alert("Richiesta cumulata inviata con successo al Google Sheet!");
             location.reload();
         });
     });
 
-    // Aggiungi utente da pannello admin
+    // Inserimento Utenti Autorizzati (Admin)
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         fetch(WEB_APP_URL, {
             method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 action: "add_authorized_user",
                 newDept: document.getElementById('newDept').value,
                 newEmail: document.getElementById('newEmail').value
             })
         }).then(() => {
-            alert("Nuovo utente abilitato sul foglio UtentiAutorizzati!");
+            alert("Nuovo indirizzo email inserito con successo nella whitelist dei dipartimenti!");
             document.getElementById('addUserForm').reset();
         });
     });
